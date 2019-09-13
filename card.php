@@ -26,26 +26,61 @@ $permissiondellink = $user->rights->webhost->write;	// Used by the include of ac
 
 $langs->load('productbycompany@productbycompany');
 
+$productbycompany = new ProductByCompany($db);
+
 $action = GETPOST('action');
-$id = GETPOST('id', 'int');
-$ref = GETPOST('ref');
+$id = GETPOST('id');
+$type = GETPOST('type');
+$fk_productbycompany = GETPOST('fk_productbycompany');
 
 $contextpage = GETPOST('contextpage', 'aZ') ? GETPOST('contextpage', 'aZ') : 'productbycompanycard';   // To manage different context of search
 $backtopage = GETPOST('backtopage', 'alpha');
 
-$object = new ProductByCompany($db);
+if (empty($id) || !in_array($type, array('product', 'company')))
+{
+    accessforbidden();
+}
+elseif ($type === 'product')
+{
+    require_once DOL_DOCUMENT_ROOT.'/product/class/product.class.php';
+    require_once DOL_DOCUMENT_ROOT.'/core/lib/product.lib.php';
 
-if (!empty($id) || !empty($ref)) $object->fetch($id, true, $ref);
+    $langs->loadLangs(array('products', 'other'));
+
+    $object = new Product($db);
+    $object->fetch($id);
+
+    $head = product_prepare_head($object);
+    $picto = ($object->type== Product::TYPE_SERVICE?'service':'product');
+    $title = $langs->trans("CardProduct".$object->type);
+}
+else
+{
+    require_once DOL_DOCUMENT_ROOT.'/societe/class/societe.class.php';
+    require_once DOL_DOCUMENT_ROOT.'/core/lib/company.lib.php';
+    require_once DOL_DOCUMENT_ROOT.'/core/class/html.formcompany.class.php';
+
+    $langs->loadLangs(array("companies","commercial"));
+
+    $object = new Societe($db);
+    $object->fetch($id);
+
+    $head = societe_prepare_head($object);
+    $picto = 'company';
+    $title = $langs->trans('ThirdParty');
+}
+
+$productbycompany->fetch($fk_productbycompany);
 
 $hookmanager->initHooks(array('productbycompanycard', 'globalcard'));
 
 
-if ($object->isextrafieldmanaged)
+if ($productbycompany->isextrafieldmanaged)
 {
     $extrafields = new ExtraFields($db);
 
-    $extralabels = $extrafields->fetch_name_optionals_label($object->table_element);
-    $search_array_options = $extrafields->getOptionalsFromPost($object->table_element, '', 'search_');
+    $extralabels = $extrafields->fetch_name_optionals_label($productbycompany->table_element);
+    $search_array_options = $extrafields->getOptionalsFromPost($productbycompany->table_element, '', 'search_');
 }
 
 // Initialize array of search criterias
@@ -60,7 +95,7 @@ if ($object->isextrafieldmanaged)
  * Actions
  */
 
-$parameters = array('id' => $id, 'ref' => $ref);
+$parameters = array('id' => $id, 'ref' => $ref, 'productbycompany' => $productbycompany);
 $reshook = $hookmanager->executeHooks('doActions', $parameters, $object, $action); // Note that $action and $object may have been modified by some
 if ($reshook < 0) setEventMessages($hookmanager->error, $hookmanager->errors, 'errors');
 
@@ -88,18 +123,18 @@ if (empty($reshook))
 	switch ($action) {
 		case 'add':
 		case 'update':
-			$object->setValues($_REQUEST); // Set standard attributes
+        $productbycompany->setValues($_REQUEST); // Set standard attributes
 
-            if ($object->isextrafieldmanaged)
+            if ($productbycompany->isextrafieldmanaged)
             {
-                $ret = $extrafields->setOptionalsFromPost($extralabels, $object);
+                $ret = $extrafields->setOptionalsFromPost($extralabels, $productbycompany);
                 if ($ret < 0) $error++;
             }
 
-//			$object->date_other = dol_mktime(GETPOST('starthour'), GETPOST('startmin'), 0, GETPOST('startmonth'), GETPOST('startday'), GETPOST('startyear'));
+//			$productbycompany->date_other = dol_mktime(GETPOST('starthour'), GETPOST('startmin'), 0, GETPOST('startmonth'), GETPOST('startday'), GETPOST('startyear'));
 
 			// Check parameters
-//			if (empty($object->date_other))
+//			if (empty($productbycompany->date_other))
 //			{
 //				$error++;
 //				setEventMessages($langs->trans('warning_date_must_be_fill'), array(), 'warnings');
@@ -113,32 +148,32 @@ if (empty($reshook))
 				break;
 			}
 			
-			$res = $object->save($user);
+			$res = $productbycompany->save($user);
             if ($res < 0)
             {
-                setEventMessage($object->errors, 'errors');
-                if (empty($object->id)) $action = 'create';
+                setEventMessage($productbycompany->errors, 'errors');
+                if (empty($productbycompany->id)) $action = 'create';
                 else $action = 'edit';
             }
             else
             {
-                header('Location: '.dol_buildpath('/productbycompany/card.php', 1).'?id='.$object->id);
+                header('Location: '.dol_buildpath('/productbycompany/card.php', 1).'?id='.$productbycompany->id);
                 exit;
             }
         case 'update_extras':
 
-            $object->oldcopy = dol_clone($object);
+            $productbycompany->oldcopy = dol_clone($productbycompany);
 
             // Fill array 'array_options' with data from update form
-            $ret = $extrafields->setOptionalsFromPost($extralabels, $object, GETPOST('attribute', 'none'));
+            $ret = $extrafields->setOptionalsFromPost($extralabels, $productbycompany, GETPOST('attribute', 'none'));
             if ($ret < 0) $error++;
 
             if (! $error)
             {
-                $result = $object->insertExtraFields('PRODUCTBYCOMPANY_MODIFY');
+                $result = $productbycompany->insertExtraFields('PRODUCTBYCOMPANY_MODIFY');
                 if ($result < 0)
                 {
-                    setEventMessages($object->error, $object->errors, 'errors');
+                    setEventMessages($productbycompany->error, $productbycompany->errors, 'errors');
                     $error++;
                 }
             }
@@ -146,42 +181,12 @@ if (empty($reshook))
             if ($error) $action = 'edit_extras';
             else
             {
-                header('Location: '.dol_buildpath('/productbycompany/card.php', 1).'?id='.$object->id);
+                header('Location: '.dol_buildpath('/productbycompany/card.php', 1).'?id='.$productbycompany->id);
                 exit;
             }
             break;
-		case 'confirm_clone':
-			$object->cloneObject($user);
-			
-			header('Location: '.dol_buildpath('/productbycompany/card.php', 1).'?id='.$object->id);
-			exit;
-
-		case 'modif':
-		case 'reopen':
-			if (!empty($user->rights->productbycompany->write)) $object->setDraft($user);
-				
-			break;
-		case 'confirm_validate':
-			if (!empty($user->rights->productbycompany->write)) $object->setValid($user);
-			
-			header('Location: '.dol_buildpath('/productbycompany/card.php', 1).'?id='.$object->id);
-			exit;
-
-		case 'confirm_delete':
-			if (!empty($user->rights->productbycompany->delete)) $object->delete($user);
-			
-			header('Location: '.dol_buildpath('/productbycompany/list.php', 1));
-			exit;
-
-		// link from llx_element_element
-		case 'dellink':
-			$object->deleteObjectLinked(null, '', null, '', GETPOST('dellinkid'));
-			header('Location: '.dol_buildpath('/productbycompany/card.php', 1).'?id='.$object->id);
-			exit;
-
 	}
 }
-
 
 /**
  * View
@@ -224,6 +229,7 @@ if ($action == 'create')
 }
 else
 {
+
     if (empty($object->id))
     {
         $langs->load('errors');
@@ -263,17 +269,15 @@ else
         }
         elseif ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'create')))
         {
-            $head = productbycompany_prepare_head($object);
-            $picto = 'productbycompany@productbycompany';
-            dol_fiche_head($head, 'card', $langs->trans('ProductByCompany'), -1, $picto);
+            dol_fiche_head($head, 'productbycompanytab', $title, -1, $picto);
 
-            $formconfirm = getFormConfirmProductByCompany($form, $object, $action);
+            $formconfirm = getFormConfirmProductByCompany($form, $productbycompany, $action);
             if (!empty($formconfirm)) print $formconfirm;
 
 
-            $linkback = '<a href="' .dol_buildpath('/productbycompany/list.php', 1) . '?restore_lastsearch_values=1">' . $langs->trans('BackToList') . '</a>';
+            //$linkback = '<a href="' .dol_buildpath('/productbycompany/list.php', 1) . '?restore_lastsearch_values=1">' . $langs->trans('BackToList') . '</a>';
 
-            $morehtmlref='<div class="refidno">';
+            //$morehtmlref='<div class="refidno">';
             /*
             // Ref bis
             $morehtmlref.=$form->editfieldkey("RefBis", 'ref_client', $object->ref_client, $object, $user->rights->productbycompany->write, 'string', '', 0, 1);
@@ -281,28 +285,54 @@ else
             // Thirdparty
             $morehtmlref.='<br>'.$langs->trans('ThirdParty') . ' : ' . $soc->getNomUrl(1);
             */
-            $morehtmlref.='</div>';
+            //$morehtmlref.='</div>';
 
 
             $morehtmlstatus.=''; //$object->getLibStatut(2); // pas besoin fait doublon
-            dol_banner_tab($object, 'ref', $linkback, 1, 'ref', 'ref', $morehtmlref, '', 0, '', $morehtmlstatus);
+            dol_banner_tab($object, '', '', ($user->socid?0:1));
 
             print '<div class="fichecenter">';
 
-            print '<div class="fichehalfleft">'; // Auto close by commonfields_view.tpl.php
+//            print '<div class="fichehalfleft">'; // Auto close by commonfields_view.tpl.php
             print '<div class="underbanner clearboth"></div>';
             print '<table class="border tableforfield" width="100%">'."\n";
 
+
+            if ($type === 'product')
+            {
+                print '<tr>';
+                print '<td class="titlefield fieldrequired">'.$langs->trans($productbycompany->fields['fk_soc']['label']).'</td>';
+                print '<td>'.$productbycompany->showOutputField($productbycompany->fields['fk_soc'], 'fk_soc', $productbycompany->fk_soc, '', '', '', 0).'</td>';
+                print "</tr>\n";
+            }
+            else
+            {
+                print '<tr>';
+                print '<td class="titlefield fieldrequired">'.$langs->trans($productbycompany->fields['fk_product']['label']).'</td>';
+                print '<td>'.$productbycompany->showOutputField($productbycompany->fields['fk_product'], 'fk_product', $productbycompany->fk_product, '', '', '', 0).'</td>';
+                print "</tr>\n";
+            }
+
+            print '<tr>';
+            print '<td class="titlefield">'.$langs->trans($productbycompany->fields['ref']['label']).'</td>';
+            print '<td>'.$productbycompany->showOutputField($productbycompany->fields['ref'], 'ref', $productbycompany->ref, '', '', '', 0).'</td>';
+            print "</tr>\n";
+
+            print '<tr>';
+            print '<td class="titlefield">'.$langs->trans($productbycompany->fields['label']['label']).'</td>';
+            print '<td>'.$productbycompany->showOutputField($productbycompany->fields['label'], 'label', $productbycompany->label, '', '', '', 0).'</td>';
+            print "</tr>\n";
+
             // Common attributes
             //$keyforbreak='fieldkeytoswithonsecondcolumn';
-            include DOL_DOCUMENT_ROOT . '/core/tpl/commonfields_view.tpl.php';
+//            include DOL_DOCUMENT_ROOT . '/core/tpl/commonfields_view.tpl.php';
 
             // Other attributes
-            include DOL_DOCUMENT_ROOT . '/core/tpl/extrafields_view.tpl.php';
+//            include DOL_DOCUMENT_ROOT . '/core/tpl/extrafields_view.tpl.php';
 
             print '</table>';
 
-            print '</div></div>'; // Fin fichehalfright & ficheaddleft
+//            print '</div></div>'; // Fin fichehalfright & ficheaddleft
             print '</div>'; // Fin fichecenter
 
             print '<div class="clearboth"></div><br />';
@@ -314,81 +344,26 @@ else
 
             if (empty($reshook))
             {
-                // Send
-                //        print '<a class="butAction" href="' . $_SERVER["PHP_SELF"] . '?id=' . $object->id . '&action=presend&mode=init#formmailbeforetitle">' . $langs->trans('SendMail') . '</a>'."\n";
-
-                // Modify
                 if (!empty($user->rights->productbycompany->write))
                 {
-                    if ($object->status !== ProductByCompany::STATUS_CANCELED)
-                    {
-                        // Modify
-                        if ($object->status !== ProductByCompany::STATUS_ACCEPTED) print '<div class="inline-block divButAction"><a class="butAction" href="'.$_SERVER["PHP_SELF"].'?id='.$object->id.'&amp;action=edit">'.$langs->trans("ProductByCompanyModify").'</a></div>'."\n";
-                        // Clone
-                        print '<div class="inline-block divButAction"><a class="butAction" href="'.$_SERVER["PHP_SELF"].'?id='.$object->id.'&amp;action=clone">'.$langs->trans("ProductByCompanyClone").'</a></div>'."\n";
-                    }
+                    // Modify
+                    print '<div class="inline-block divButAction"><a class="butAction" href="'.$_SERVER["PHP_SELF"].'?id='.$object->id.'&type='.$type.'&fk_productbycompany='.$productbycompany->id.'&action=edit">'.$langs->trans("ProductByCompanyModify").'</a></div>'."\n";
 
-                    // Valid
-                    if ($object->status === ProductByCompany::STATUS_DRAFT) print '<div class="inline-block divButAction"><a class="butAction" href="'.$_SERVER["PHP_SELF"].'?id='.$object->id.'&amp;action=valid">'.$langs->trans('ProductByCompanyValid').'</a></div>'."\n";
+                    // Delete
+                    print '<div class="inline-block divButAction"><a class="butActionDelete" href="'.$_SERVER["PHP_SELF"].'?id='.$object->id.'&type='.$type.'&fk_productbycompany='.$productbycompany->id.'&action=delete">'.$langs->trans("ProductByCompanyDelete").'</a></div>'."\n";
 
-                    // Accept
-                    if ($object->status === ProductByCompany::STATUS_VALIDATED) print '<div class="inline-block divButAction"><a class="butAction" href="'.$_SERVER["PHP_SELF"].'?id='.$object->id.'&amp;action=accept">'.$langs->trans('ProductByCompanyAccept').'</a></div>'."\n";
-                    // Refuse
-                    if ($object->status === ProductByCompany::STATUS_VALIDATED) print '<div class="inline-block divButAction"><a class="butAction" href="'.$_SERVER["PHP_SELF"].'?id='.$object->id.'&amp;action=refuse">'.$langs->trans('ProductByCompanyRefuse').'</a></div>'."\n";
-
-
-                    // Reopen
-                    if ($object->status === ProductByCompany::STATUS_ACCEPTED || $object->status === ProductByCompany::STATUS_REFUSED) print '<div class="inline-block divButAction"><a class="butAction" href="'.$_SERVER["PHP_SELF"].'?id='.$object->id.'&amp;action=reopen">'.$langs->trans('ProductByCompanyReopen').'</a></div>'."\n";
-                    // Cancel
-                    if ($object->status === ProductByCompany::STATUS_VALIDATED) print '<div class="inline-block divButAction"><a class="butAction" href="'.$_SERVER["PHP_SELF"].'?id='.$object->id.'&amp;action=cancel">'.$langs->trans("ProductByCompanyCancel").'</a></div>'."\n";
                 }
                 else
                 {
-                    if ($object->status !== ProductByCompany::STATUS_CANCELED)
-                    {
-                        // Modify
-                        if ($object->status !== ProductByCompany::STATUS_ACCEPTED) print '<div class="inline-block divButAction"><a class="butActionRefused" href="#" title="'.dol_escape_htmltag($langs->trans("NotEnoughPermissions")).'">'.$langs->trans("ProductByCompanyModify").'</a></div>'."\n";
-                        // Clone
-                        print '<div class="inline-block divButAction"><a class="butAction" href="#" title="'.dol_escape_htmltag($langs->trans("NotEnoughPermissions")).'">'.$langs->trans("ProductByCompanyClone").'</a></div>'."\n";
-                    }
 
-                    // Valid
-                    if ($object->status === ProductByCompany::STATUS_DRAFT) print '<div class="inline-block divButAction"><a class="butActionRefused" href="#" title="'.dol_escape_htmltag($langs->trans("NotEnoughPermissions")).'">'.$langs->trans('ProductByCompanyValid').'</a></div>'."\n";
+                    // Modify
+                    print '<div class="inline-block divButAction"><a class="butActionRefused" href="#" title="'.dol_escape_htmltag($langs->trans("NotEnoughPermissions")).'">'.$langs->trans("ProductByCompanyModify").'</a></div>'."\n";
 
-                    // Accept
-                    if ($object->status === ProductByCompany::STATUS_VALIDATED) print '<div class="inline-block divButAction"><a class="butActionRefused" href="#">'.$langs->trans('ProductByCompanyAccept').'</a></div>'."\n";
-                    // Refuse
-                    if ($object->status === ProductByCompany::STATUS_VALIDATED) print '<div class="inline-block divButAction"><a class="butActionRefused" href="#">'.$langs->trans('ProductByCompanyRefuse').'</a></div>'."\n";
-
-                    // Reopen
-                    if ($object->status === ProductByCompany::STATUS_ACCEPTED || $object->status === ProductByCompany::STATUS_REFUSED) print '<div class="inline-block divButAction"><a class="butActionRefused" href="#" title="'.dol_escape_htmltag($langs->trans("NotEnoughPermissions")).'">'.$langs->trans('ProductByCompanyReopen').'</a></div>'."\n";
-                    // Cancel
-                    if ($object->status === ProductByCompany::STATUS_VALIDATED) print '<div class="inline-block divButAction"><a class="butActionRefused" href="#" title="'.dol_escape_htmltag($langs->trans("NotEnoughPermissions")).'">'.$langs->trans("ProductByCompanyCancel").'</a></div>'."\n";
-                }
-
-                if (!empty($user->rights->productbycompany->delete))
-                {
-                    print '<div class="inline-block divButAction"><a class="butActionDelete" href="'.$_SERVER["PHP_SELF"].'?id='.$object->id.'&amp;action=delete">'.$langs->trans("ProductByCompanyDelete").'</a></div>'."\n";
-                }
-                else
-                {
+                    // Delete
                     print '<div class="inline-block divButAction"><a class="butActionRefused" href="#" title="'.dol_escape_htmltag($langs->trans("NotEnoughPermissions")).'">'.$langs->trans("ProductByCompanyDelete").'</a></div>'."\n";
                 }
             }
             print '</div>'."\n";
-
-            print '<div class="fichecenter"><div class="fichehalfleft">';
-            $linktoelem = $form->showLinkToObjectBlock($object, null, array($object->element));
-            $somethingshown = $form->showLinkedObjectBlock($object, $linktoelem);
-
-            print '</div><div class="fichehalfright"><div class="ficheaddleft">';
-
-            // List of actions on element
-            include_once DOL_DOCUMENT_ROOT . '/core/class/html.formactions.class.php';
-            $formactions = new FormActions($db);
-            $somethingshown = $formactions->showactions($object, $object->element, $socid, 1);
-
-            print '</div></div></div>';
 
             dol_fiche_end(-1);
         }

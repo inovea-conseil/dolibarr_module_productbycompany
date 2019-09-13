@@ -137,7 +137,10 @@ class modProductByCompany extends DolibarrModules
 		// 'stock'            to add a tab in stock view
 		// 'thirdparty'       to add a tab in third party view
 		// 'user'             to add a tab in user view
-        $this->tabs = array();
+        $this->tabs = array(
+            'product:+productbycompanytab:TabProductByCompanyFromProduct:productbycompany@productbycompany:$user->rights->productbycompany->read:/productbycompany/list.php?id=__ID__&type=product'
+            ,'thirdparty:+productbycompanytab:TabProductByCompanyFromCompany:productbycompany@productbycompany:$user->rights->productbycompany->read:/productbycompany/list.php?id=__ID__&type=company'
+        );
 
         // Dictionaries
 	    if (! isset($conf->productbycompany->enabled))
@@ -180,7 +183,7 @@ class modProductByCompany extends DolibarrModules
 		// $this->rights[$r][4] = 'level1';				// In php code, permission will be checked by test if ($user->rights->permkey->level1->level2)
 		// $this->rights[$r][5] = 'level2';				// In php code, permission will be checked by test if ($user->rights->permkey->level1->level2)
 		// $r++;
-/*
+
 		$this->rights[$r][0] = $this->numero . $r;	// Permission id (must not be already used)
 		$this->rights[$r][1] = 'productbycompany_read';	// Permission label
 		$this->rights[$r][3] = 1; 					// Permission by default for new user (0/1)
@@ -201,7 +204,7 @@ class modProductByCompany extends DolibarrModules
 		$this->rights[$r][4] = 'delete';		    // In php code, permission will be checked by test if ($user->rights->permkey->level1->level2)
 		$this->rights[$r][5] = '';				// In php code, permission will be checked by test if ($user->rights->permkey->level1->level2)
 		$r++;
-*/
+
 
 		// Main menu entries
 		$this->menu = array();			// List of menus to add

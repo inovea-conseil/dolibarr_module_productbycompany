@@ -14,24 +14,14 @@ ParamLabel=Nom du paramètre
 ParamDesc=Une description si besoin
 ParamHelp=Le contenu de l'aide
 
-# MENU
-TopMenuProductByCompany=ProductByCompany
-
-# STATUS
-ProductByCompanyStatusCanceled=Abandonnée (fermée)
-ProductByCompanyStatusDraft=Brouillon (à valider)
-ProductByCompanyStatusValidated=Validée (à accepter)
-ProductByCompanyStatusRefused=Refusée (fermée)
-ProductByCompanyStatusAccepted=Acceptée (fermée)
-
-ProductByCompanyStatusShortCanceled=Abandonnée
-ProductByCompanyStatusShortDraft=Brouillon
-ProductByCompanyStatusShortValidated=Validée
-ProductByCompanyStatusShortRefused=Refusée
-ProductByCompanyStatusShortAccepted=Acceptée
+# TAB
+TabProductByCompanyFromProduct=Réf./libellé par client
+TabProductByCompanyFromCompany=Réf./libellé par produit
 
 # LIST
-ProductByCompanyList=Liste ProductByCompany
+ProductByCompanyListFromProduct=Liste Réf./libellé par tiers
+ProductByCompanyListFromCompany=Liste Réf./libellé par produit
+AddNewProductByCompany=Créer une valeur personnalisée
 NoProductByCompany=(vide)
 
 # CARD
