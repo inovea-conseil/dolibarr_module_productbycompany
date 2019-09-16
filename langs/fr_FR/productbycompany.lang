@@ -42,3 +42,5 @@ ConfirmValidateProductByCompanyBody=Souhaitez-vous vraiment activer cette fiche 
 
 ConfirmDeleteProductByCompanyTitle=Confirmation de suppression
 ConfirmDeleteProductByCompanyBody=Souhaitez-vous vraiment supprimer cette fiche ProductByCompany %s ?
+
+DateCre=Date de création

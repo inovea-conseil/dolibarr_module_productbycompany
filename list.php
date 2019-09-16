@@ -157,6 +157,34 @@ $formcore = new TFormCore($_SERVER['PHP_SELF'], 'form_list_productbycompany', 'G
 
 $nbLine = !empty($user->conf->MAIN_SIZE_LISTE_LIMIT) ? $user->conf->MAIN_SIZE_LISTE_LIMIT : $conf->global->MAIN_SIZE_LISTE_LIMIT;
 
+$TSearch = array(
+	'date_creation' => array('search_type' => 'calendars', 'allow_is_null' => true)
+	,'ref' => array('search_type' => true, 'table' => 't', 'field' => 'ref')
+	,'label' => array('search_type' => true, 'table' => array('t', 't'), 'field' => array('label')) // input text de recherche sur plusieurs champs
+);
+
+if ($type == 'company')
+{
+	$TTitles = array(
+		'fk_productbycompany' => $langs->trans('ID.')
+		,'fk_product' => $langs->trans('Product')
+		,'ref' => $langs->trans('Ref.')
+		,'label' => $langs->trans('Label')
+		,'date_creation' => $langs->trans('DateCre')
+	);
+}
+else
+{
+	$TTitles = array(
+		'fk_productbycompany' => $langs->trans('ID.')
+		,'fk_soc' => $langs->trans('Customer')
+		,'ref' => $langs->trans('Ref.')
+		,'label' => $langs->trans('Label')
+		,'date_creation' => $langs->trans('DateCre')
+	);
+}
+
+
 $r = new Listview($db, 'productbycompany');
 echo $r->render($sql, array(
 	'view_type' => 'list' // default = [list], [raw], [chart]
@@ -185,24 +213,13 @@ echo $r->render($sql, array(
 		'date_creation' => 'date' // [datetime], [hour], [money], [number], [integer]
 		,'tms' => 'date'
 	)
-	,'search' => array(
-		'date_creation' => array('search_type' => 'calendars', 'allow_is_null' => true)
-		,'tms' => array('search_type' => 'calendars', 'allow_is_null' => false)
-		,'ref' => array('search_type' => true, 'table' => 't', 'field' => 'ref')
-		,'label' => array('search_type' => true, 'table' => array('t', 't'), 'field' => array('label')) // input text de recherche sur plusieurs champs
-	)
+	,'search' => $TSearch
 	,'translate' => array()
 	,'hide' => array(
 		'rowid' // important : rowid doit exister dans la query sql pour les checkbox de massaction
+		,'tms'
 	)
-	,'title'=>array(
-		'fk_productbycompany' => $langs->trans('ID.')
-		,'ref' => $langs->trans('Ref.')
-		,'label' => $langs->trans('Label')
-		,'date_creation' => $langs->trans('DateCre')
-		,'tms' => $langs->trans('DateMaj')
-
-	)
+	,'title'=>$TTitles
 	,'eval'=>array()
 ));
 
