@@ -87,7 +87,7 @@ if (!GETPOST('confirmmassaction', 'alpha') && $massaction != 'presend' && $massa
 
 if (empty($reshook))
 {
-	// do action from GETPOST ... 
+	// do action from GETPOST ...
 }
 
 
@@ -144,9 +144,10 @@ dol_banner_tab($object, '', '', ($user->socid?0:1));
 $newcardbutton = '';
 if ($user->rights->productbycompany->write)
 {
-    $backtopage=dol_buildpath('productbycompany/list.php', 1).'?id='.$object->id.'&type='.$type;
+    $backtopage=dol_buildpath('productbycompany/list.php', 1).'?origin_id='.$object->id.'&type='.$type;
     $addproductbycomapny = $langs->trans("AddNewProductByCompany");
-    $newcardbutton.='<a class="butActionNew" href="'.dol_buildpath('productbycompany/card.php', 1).'?action=create&id='.$object->id.'&type='.$type.'&backtopage='.urlencode($backtopage).'"><span class="valignmiddle">'.$addproductbycomapny.'</span>';
+    $fk = $type=='product' ? "&fk_product=".$object->id : "&fk_soc=".$object->id ;
+    $newcardbutton.='<a class="butActionNew" href="'.dol_buildpath('productbycompany/card.php', 1).'?action=create&origin_id='.$object->id.'&type='.$type.$fk.'&backtopage='.urlencode($backtopage).'"><span class="valignmiddle">'.$addproductbycomapny.'</span>';
     $newcardbutton.= '<span class="fa fa-plus-circle valignmiddle"></span>';
     $newcardbutton.= '</a>';
 }
@@ -178,7 +179,7 @@ echo $r->render($sql, array(
     )
 	,'subQuery' => array()
 	,'link' => array(
-	    'fk_productbycompany' => '<a href="'.dol_buildpath('productbycompany/card.php', 1).'?id='.$object->id.'&type='.$type.'&fk_productbycompany=@val@">@val@</a>'
+	    'fk_productbycompany' => '<a href="'.dol_buildpath('productbycompany/card.php', 1).'?origin_id='.$object->id.'&type='.$type.'&fk_productbycompany=@val@">@val@</a>'
     )
 	,'type' => array(
 		'date_creation' => 'date' // [datetime], [hour], [money], [number], [integer]

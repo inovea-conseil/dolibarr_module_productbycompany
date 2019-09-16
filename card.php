@@ -22,21 +22,21 @@ dol_include_once('productbycompany/class/productbycompany.class.php');
 dol_include_once('productbycompany/lib/productbycompany.lib.php');
 
 if(empty($user->rights->productbycompany->read)) accessforbidden();
-$permissiondellink = $user->rights->webhost->write;	// Used by the include of actions_dellink.inc.php
+$permissiondellink = $user->rights->productbycompany->write;	// Used by the include of actions_dellink.inc.php
 
 $langs->load('productbycompany@productbycompany');
 
-$productbycompany = new ProductByCompany($db);
+$object = new ProductByCompany($db);
 
 $action = GETPOST('action');
-$id = GETPOST('id');
+$origin_id = GETPOST('origin_id');
 $type = GETPOST('type');
 $fk_productbycompany = GETPOST('fk_productbycompany');
 
 $contextpage = GETPOST('contextpage', 'aZ') ? GETPOST('contextpage', 'aZ') : 'productbycompanycard';   // To manage different context of search
 $backtopage = GETPOST('backtopage', 'alpha');
 
-if (empty($id) || !in_array($type, array('product', 'company')))
+if (empty($origin_id) || !in_array($type, array('product', 'company')))
 {
     accessforbidden();
 }
@@ -47,12 +47,12 @@ elseif ($type === 'product')
 
     $langs->loadLangs(array('products', 'other'));
 
-    $object = new Product($db);
-    $object->fetch($id);
+    $origin_object = new Product($db);
+    $origin_object->fetch($origin_id);
 
-    $head = product_prepare_head($object);
-    $picto = ($object->type== Product::TYPE_SERVICE?'service':'product');
-    $title = $langs->trans("CardProduct".$object->type);
+    $head = product_prepare_head($origin_object);
+    $picto = ($origin_object->type== Product::TYPE_SERVICE?'service':'product');
+    $title = $langs->trans("CardProduct".$origin_object->type);
 }
 else
 {
@@ -62,31 +62,31 @@ else
 
     $langs->loadLangs(array("companies","commercial"));
 
-    $object = new Societe($db);
-    $object->fetch($id);
+    $origin_object = new Societe($db);
+    $origin_object->fetch($origin_id);
 
-    $head = societe_prepare_head($object);
+    $head = societe_prepare_head($origin_object);
     $picto = 'company';
     $title = $langs->trans('ThirdParty');
 }
 
-$productbycompany->fetch($fk_productbycompany);
+$object->fetch($fk_productbycompany);
 
 $hookmanager->initHooks(array('productbycompanycard', 'globalcard'));
 
 
-if ($productbycompany->isextrafieldmanaged)
+if ($object->isextrafieldmanaged)
 {
     $extrafields = new ExtraFields($db);
 
-    $extralabels = $extrafields->fetch_name_optionals_label($productbycompany->table_element);
-    $search_array_options = $extrafields->getOptionalsFromPost($productbycompany->table_element, '', 'search_');
+    $extralabels = $extrafields->fetch_name_optionals_label($object->table_element);
+    $search_array_options = $extrafields->getOptionalsFromPost($object->table_element, '', 'search_');
 }
 
 // Initialize array of search criterias
 //$search_all=trim(GETPOST("search_all",'alpha'));
 //$search=array();
-//foreach($object->fields as $key => $val)
+//foreach($origin_object->fields as $key => $val)
 //{
 //    if (GETPOST('search_'.$key,'alpha')) $search[$key]=GETPOST('search_'.$key,'alpha');
 //}
@@ -95,8 +95,8 @@ if ($productbycompany->isextrafieldmanaged)
  * Actions
  */
 
-$parameters = array('id' => $id, 'ref' => $ref, 'productbycompany' => $productbycompany);
-$reshook = $hookmanager->executeHooks('doActions', $parameters, $object, $action); // Note that $action and $object may have been modified by some
+$parameters = array('origin_id' => $origin_id, 'ref' => $ref, 'productbycompany' => $object);
+$reshook = $hookmanager->executeHooks('doActions', $parameters, $origin_object, $action); // Note that $action and $origin_object may have been modified by some
 if ($reshook < 0) setEventMessages($hookmanager->error, $hookmanager->errors, 'errors');
 
 // Si vide alors le comportement n'est pas remplacé
@@ -123,23 +123,22 @@ if (empty($reshook))
 	switch ($action) {
 		case 'add':
 		case 'update':
-        $productbycompany->setValues($_REQUEST); // Set standard attributes
-
-            if ($productbycompany->isextrafieldmanaged)
+        	$object->setValues($_REQUEST); // Set standard attributes
+            if ($object->isextrafieldmanaged)
             {
-                $ret = $extrafields->setOptionalsFromPost($extralabels, $productbycompany);
+                $ret = $extrafields->setOptionalsFromPost($extralabels, $object);
                 if ($ret < 0) $error++;
             }
 
-//			$productbycompany->date_other = dol_mktime(GETPOST('starthour'), GETPOST('startmin'), 0, GETPOST('startmonth'), GETPOST('startday'), GETPOST('startyear'));
+//			$object->date_other = dol_mktime(GETPOST('starthour'), GETPOST('startmin'), 0, GETPOST('startmonth'), GETPOST('startday'), GETPOST('startyear'));
 
 			// Check parameters
-//			if (empty($productbycompany->date_other))
+//			if (empty($object->date_other))
 //			{
 //				$error++;
 //				setEventMessages($langs->trans('warning_date_must_be_fill'), array(), 'warnings');
 //			}
-			
+
 			// ...
 
 			if ($error > 0)
@@ -147,33 +146,33 @@ if (empty($reshook))
 				$action = 'edit';
 				break;
 			}
-			
-			$res = $productbycompany->save($user);
+			unset($object->id);
+			$res = $object->save($user);
             if ($res < 0)
             {
-                setEventMessage($productbycompany->errors, 'errors');
-                if (empty($productbycompany->id)) $action = 'create';
+                setEventMessage($object->errors, 'errors');
+                if (empty($object->id)) $action = 'create';
                 else $action = 'edit';
             }
             else
             {
-                header('Location: '.dol_buildpath('/productbycompany/card.php', 1).'?id='.$productbycompany->id);
+                header('Location: '.dol_buildpath('/productbycompany/list.php', 1).'?id='.$origin_object->id.'&type='.$type);
                 exit;
             }
         case 'update_extras':
 
-            $productbycompany->oldcopy = dol_clone($productbycompany);
+            $object->oldcopy = dol_clone($object);
 
             // Fill array 'array_options' with data from update form
-            $ret = $extrafields->setOptionalsFromPost($extralabels, $productbycompany, GETPOST('attribute', 'none'));
+            $ret = $extrafields->setOptionalsFromPost($extralabels, $object, GETPOST('attribute', 'none'));
             if ($ret < 0) $error++;
 
             if (! $error)
             {
-                $result = $productbycompany->insertExtraFields('PRODUCTBYCOMPANY_MODIFY');
+                $result = $object->insertExtraFields('PRODUCTBYCOMPANY_MODIFY');
                 if ($result < 0)
                 {
-                    setEventMessages($productbycompany->error, $productbycompany->errors, 'errors');
+                    setEventMessages($object->error, $object->errors, 'errors');
                     $error++;
                 }
             }
@@ -181,7 +180,7 @@ if (empty($reshook))
             if ($error) $action = 'edit_extras';
             else
             {
-                header('Location: '.dol_buildpath('/productbycompany/card.php', 1).'?id='.$productbycompany->id);
+                header('Location: '.dol_buildpath('/productbycompany/card.php', 1).'?id='.$object->id);
                 exit;
             }
             break;
@@ -198,11 +197,14 @@ llxHeader('', $title);
 
 if ($action == 'create')
 {
+
     print load_fiche_titre($langs->trans('NewProductByCompany'), '', 'productbycompany@productbycompany');
 
     print '<form method="POST" action="'.$_SERVER["PHP_SELF"].'">';
     print '<input type="hidden" name="token" value="'.$_SESSION['newtoken'].'">';
     print '<input type="hidden" name="action" value="add">';
+    print '<input type="hidden" name="origin_id" value="'.$origin_id.'">';
+    print '<input type="hidden" name="type" value="'.$type.'">';
     print '<input type="hidden" name="backtopage" value="'.$backtopage.'">';
 
     dol_fiche_head(array(), '');
@@ -230,22 +232,22 @@ if ($action == 'create')
 else
 {
 
-    if (empty($object->id))
+    if (empty($origin_object->id))
     {
         $langs->load('errors');
         print $langs->trans('ErrorRecordNotFound');
     }
     else
     {
-        if (!empty($object->id) && $action === 'edit')
+        if (!empty($origin_object->id) && $action === 'edit')
         {
             print '<form method="POST" action="'.$_SERVER["PHP_SELF"].'">';
             print '<input type="hidden" name="token" value="'.$_SESSION['newtoken'].'">';
             print '<input type="hidden" name="action" value="update">';
             print '<input type="hidden" name="backtopage" value="'.$backtopage.'">';
-            print '<input type="hidden" name="id" value="'.$object->id.'">';
+            print '<input type="hidden" name="id" value="'.$origin_object->id.'">';
 
-            $head = productbycompany_prepare_head($object);
+            $head = productbycompany_prepare_head($origin_object);
             $picto = 'productbycompany@productbycompany';
             dol_fiche_head($head, 'card', $langs->trans('ProductByCompany'), 0, $picto);
 
@@ -267,11 +269,11 @@ else
 
             print '</form>';
         }
-        elseif ($object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'create')))
+        elseif ($origin_object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'create')))
         {
             dol_fiche_head($head, 'productbycompanytab', $title, -1, $picto);
 
-            $formconfirm = getFormConfirmProductByCompany($form, $productbycompany, $action);
+            $formconfirm = getFormConfirmProductByCompany($form, $object, $action);
             if (!empty($formconfirm)) print $formconfirm;
 
 
@@ -280,16 +282,16 @@ else
             //$morehtmlref='<div class="refidno">';
             /*
             // Ref bis
-            $morehtmlref.=$form->editfieldkey("RefBis", 'ref_client', $object->ref_client, $object, $user->rights->productbycompany->write, 'string', '', 0, 1);
-            $morehtmlref.=$form->editfieldval("RefBis", 'ref_client', $object->ref_client, $object, $user->rights->productbycompany->write, 'string', '', null, null, '', 1);
+            $morehtmlref.=$form->editfieldkey("RefBis", 'ref_client', $origin_object->ref_client, $origin_object, $user->rights->productbycompany->write, 'string', '', 0, 1);
+            $morehtmlref.=$form->editfieldval("RefBis", 'ref_client', $origin_object->ref_client, $origin_object, $user->rights->productbycompany->write, 'string', '', null, null, '', 1);
             // Thirdparty
             $morehtmlref.='<br>'.$langs->trans('ThirdParty') . ' : ' . $soc->getNomUrl(1);
             */
             //$morehtmlref.='</div>';
 
 
-            $morehtmlstatus.=''; //$object->getLibStatut(2); // pas besoin fait doublon
-            dol_banner_tab($object, '', '', ($user->socid?0:1));
+            $morehtmlstatus.=''; //$origin_object->getLibStatut(2); // pas besoin fait doublon
+            dol_banner_tab($origin_object, '', '', ($user->socid?0:1));
 
             print '<div class="fichecenter">';
 
@@ -301,26 +303,26 @@ else
             if ($type === 'product')
             {
                 print '<tr>';
-                print '<td class="titlefield fieldrequired">'.$langs->trans($productbycompany->fields['fk_soc']['label']).'</td>';
-                print '<td>'.$productbycompany->showOutputField($productbycompany->fields['fk_soc'], 'fk_soc', $productbycompany->fk_soc, '', '', '', 0).'</td>';
+                print '<td class="titlefield fieldrequired">'.$langs->trans($object->fields['fk_soc']['label']).'</td>';
+                print '<td>'.$object->showOutputField($object->fields['fk_soc'], 'fk_soc', $object->fk_soc, '', '', '', 0).'</td>';
                 print "</tr>\n";
             }
             else
             {
                 print '<tr>';
-                print '<td class="titlefield fieldrequired">'.$langs->trans($productbycompany->fields['fk_product']['label']).'</td>';
-                print '<td>'.$productbycompany->showOutputField($productbycompany->fields['fk_product'], 'fk_product', $productbycompany->fk_product, '', '', '', 0).'</td>';
+                print '<td class="titlefield fieldrequired">'.$langs->trans($object->fields['fk_product']['label']).'</td>';
+                print '<td>'.$object->showOutputField($object->fields['fk_product'], 'fk_product', $object->fk_product, '', '', '', 0).'</td>';
                 print "</tr>\n";
             }
 
             print '<tr>';
-            print '<td class="titlefield">'.$langs->trans($productbycompany->fields['ref']['label']).'</td>';
-            print '<td>'.$productbycompany->showOutputField($productbycompany->fields['ref'], 'ref', $productbycompany->ref, '', '', '', 0).'</td>';
+            print '<td class="titlefield">'.$langs->trans($object->fields['ref']['label']).'</td>';
+            print '<td>'.$object->showOutputField($object->fields['ref'], 'ref', $object->ref, '', '', '', 0).'</td>';
             print "</tr>\n";
 
             print '<tr>';
-            print '<td class="titlefield">'.$langs->trans($productbycompany->fields['label']['label']).'</td>';
-            print '<td>'.$productbycompany->showOutputField($productbycompany->fields['label'], 'label', $productbycompany->label, '', '', '', 0).'</td>';
+            print '<td class="titlefield">'.$langs->trans($object->fields['label']['label']).'</td>';
+            print '<td>'.$object->showOutputField($object->fields['label'], 'label', $object->label, '', '', '', 0).'</td>';
             print "</tr>\n";
 
             // Common attributes
@@ -339,7 +341,7 @@ else
 
             print '<div class="tabsAction">'."\n";
             $parameters=array();
-            $reshook = $hookmanager->executeHooks('addMoreActionsButtons', $parameters, $object, $action);    // Note that $action and $object may have been modified by hook
+            $reshook = $hookmanager->executeHooks('addMoreActionsButtons', $parameters, $origin_object, $action);    // Note that $action and $origin_object may have been modified by hook
             if ($reshook < 0) setEventMessages($hookmanager->error, $hookmanager->errors, 'errors');
 
             if (empty($reshook))
@@ -347,10 +349,10 @@ else
                 if (!empty($user->rights->productbycompany->write))
                 {
                     // Modify
-                    print '<div class="inline-block divButAction"><a class="butAction" href="'.$_SERVER["PHP_SELF"].'?id='.$object->id.'&type='.$type.'&fk_productbycompany='.$productbycompany->id.'&action=edit">'.$langs->trans("ProductByCompanyModify").'</a></div>'."\n";
+                    print '<div class="inline-block divButAction"><a class="butAction" href="'.$_SERVER["PHP_SELF"].'?origin_id='.$origin_object->id.'&type='.$type.'&fk_productbycompany='.$object->id.'&action=edit">'.$langs->trans("ProductByCompanyModify").'</a></div>'."\n";
 
                     // Delete
-                    print '<div class="inline-block divButAction"><a class="butActionDelete" href="'.$_SERVER["PHP_SELF"].'?id='.$object->id.'&type='.$type.'&fk_productbycompany='.$productbycompany->id.'&action=delete">'.$langs->trans("ProductByCompanyDelete").'</a></div>'."\n";
+                    print '<div class="inline-block divButAction"><a class="butActionDelete" href="'.$_SERVER["PHP_SELF"].'?origin_id='.$origin_object->id.'&type='.$type.'&fk_productbycompany='.$object->id.'&action=delete">'.$langs->trans("ProductByCompanyDelete").'</a></div>'."\n";
 
                 }
                 else
