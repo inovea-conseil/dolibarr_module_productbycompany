@@ -67,7 +67,7 @@ class ActionsProductByCompany
 	 */
 	public function doActions($parameters, &$object, &$action, $hookmanager)
 	{
-		$error = 0; // Error counter
+		/*$error = 0; // Error counter
 		$myvalue = 'test'; // A result value
 
 		print_r($parameters);
@@ -89,6 +89,35 @@ class ActionsProductByCompany
 		{
 			$this->errors[] = 'Error message';
 			return -1;
+		}*/
+	}
+
+	public function pdf_writelinedesc($parameters, &$object, &$action, $hookmanager)
+	{
+		$TContext = explode(':', $parameters['context']);
+
+		if (in_array('pdfgeneration', $TContext) && $object->element == 'propal')
+		{
+			/*foreach($parameters as $key => $value) {
+				$$key = $value;
+			}
+
+			$desc = pdf_getlinedesc($object, $i, $outputlangs, $hideref, $hidedesc, $issupplierline);
+			$prodser = new Product($db);
+			if (!empty($object->lines[$i]->fk_product)) $prodser->fetch($object->lines[$i]->fk_product);
+
+			if(! empty($prodser->multilangs['fr_FR']["description"]) && !empty($prodser->multilangs[$outputlangs->defaultlang]["description"]) && strpos($desc, $prodser->multilangs['fr_FR']["description"]) !== false)
+			{
+				$desc = str_replace($prodser->multilangs['fr_FR']["description"], $prodser->multilangs[$outputlangs->defaultlang]["description"], $desc);
+				$desc = str_replace(htmlentities('Nomenclature douanière / Code SH'), '('.$outputlangs->trans('CustomCode'), $desc);
+			}
+
+			$pdf->writeHTMLCell($w, $h, $posx, $posy, $outputlangs->convToOutputCharset($desc), 0, 1, false, true, 'J',true);
+
+			$this->resprints = $desc;
+			var_dump($parameters, $object); exit;
+			return 1;*/
 		}
+
 	}
 }

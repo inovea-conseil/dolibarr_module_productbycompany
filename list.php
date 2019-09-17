@@ -17,6 +17,7 @@
 
 require 'config.php';
 dol_include_once('productbycompany/class/productbycompany.class.php');
+dol_include_once('productbycompany/lib/productbycompany.lib.php');
 require_once DOL_DOCUMENT_ROOT.'/core/lib/functions.lib.php';
 
 if(empty($user->rights->productbycompany->read)) accessforbidden();
@@ -79,15 +80,45 @@ $parameters=array();
 $reshook=$hookmanager->executeHooks('doActions', $parameters, $object);    // Note that $action and $object may have been modified by some hooks
 if ($reshook < 0) setEventMessages($hookmanager->error, $hookmanager->errors, 'errors');
 
-if (!GETPOST('confirmmassaction', 'alpha') && $massaction != 'presend' && $massaction != 'confirm_presend')
-{
-    $massaction = '';
-}
+if (GETPOST('cancel', 'alpha')) { $action='list'; $massaction=''; }
+if (!GETPOST('confirmmassaction', 'alpha') && $massaction != 'presend' && $massaction != 'confirm_presend'){ $massaction = ''; }
 
 
 if (empty($reshook))
 {
-	// do action from GETPOST ...
+	// Selection of new fields
+	include DOL_DOCUMENT_ROOT.'/core/actions_changeselectedfields.inc.php';
+
+	// Purge search criteria
+	if (GETPOST('button_removefilter_x', 'alpha') || GETPOST('button_removefilter.x', 'alpha') || GETPOST('button_removefilter', 'alpha')) // All tests are required to be compatible with all browsers
+	{
+		$sall="";
+		$search_ref="";
+		$search_label="";
+		$search_barcode="";
+		$search_categ=0;
+		$search_tosell="";
+		$search_tobuy="";
+		$search_tobatch='';
+		//$search_type='';						// There is 2 types of list: a list of product and a list of services. No list with both. So when we clear search criteria, we must keep the filter on type.
+
+		$show_childproducts = '';
+		$search_accountancy_code_sell='';
+		$search_accountancy_code_sell_intra='';
+		$search_accountancy_code_sell_export='';
+		$search_accountancy_code_buy='';
+		$search_array_options=array();
+	}
+
+	// Mass actions
+	$objectclass='ProductByCompany';
+	if ((string) $search_type == '1') { $objectlabel='Services'; }
+	if ((string) $search_type == '0') { $objectlabel='Products'; }
+
+	$permtoread = $user->rights->productbycompany->read;
+	$permtodelete = $user->rights->productbycompany->delete;
+	$uploaddir = $conf->productbycompany->dir_output;
+	include DOL_DOCUMENT_ROOT.'/core/actions_massactions.inc.php';
 }
 
 
@@ -138,7 +169,7 @@ $sql.=$hookmanager->resPrint;
 
 dol_fiche_head($head, 'productbycompanytab', $title, -1, $picto);
 
-dol_banner_tab($object, '', '', ($user->socid?0:1));
+dol_banner_tab($object, 'type='.$type.'&id', '', ($user->socid?0:1));
 
 // PRINT LIST
 $newcardbutton = '';
@@ -154,8 +185,15 @@ if ($user->rights->productbycompany->write)
 
 
 $formcore = new TFormCore($_SERVER['PHP_SELF'], 'form_list_productbycompany', 'GET');
+print $formcore->hidden("id", $id);
+print $formcore->hidden('type', $type);
 
 $nbLine = !empty($user->conf->MAIN_SIZE_LISTE_LIMIT) ? $user->conf->MAIN_SIZE_LISTE_LIMIT : $conf->global->MAIN_SIZE_LISTE_LIMIT;
+
+$TEval = array(
+	'fk_product' => 'getOriginLink("'.$type.'", @val@)'
+	,'fk_soc' => 'getOriginLink("'.$type.'", @val@)'
+);
 
 $TSearch = array(
 	'date_creation' => array('search_type' => 'calendars', 'allow_is_null' => true)
@@ -184,7 +222,6 @@ else
 	);
 }
 
-
 $r = new Listview($db, 'productbycompany');
 echo $r->render($sql, array(
 	'view_type' => 'list' // default = [list], [raw], [chart]
@@ -202,12 +239,12 @@ echo $r->render($sql, array(
         ,'messageNothing' => $langs->trans('NoProductByCompany')
         ,'picto_search' => img_picto('', 'search.png', '', 0)
         ,'massactions'=>array(
-            'yourmassactioncode'  => $langs->trans('YourMassActionLabel')
+            'delete'  => $langs->trans('Delete')
         )
     )
 	,'subQuery' => array()
 	,'link' => array(
-	    'fk_productbycompany' => '<a href="'.dol_buildpath('productbycompany/card.php', 1).'?origin_id='.$object->id.'&type='.$type.'&fk_productbycompany=@val@">@val@</a>'
+	    'fk_productbycompany' => '<a href="'.dol_buildpath('productbycompany/card.php', 1).'?origin_id='.$object->id.'&type='.$type.'&id=@val@">@val@</a>'
     )
 	,'type' => array(
 		'date_creation' => 'date' // [datetime], [hour], [money], [number], [integer]
@@ -220,7 +257,7 @@ echo $r->render($sql, array(
 		,'tms'
 	)
 	,'title'=>$TTitles
-	,'eval'=>array()
+	,'eval'=>$TEval
 ));
 
 $parameters=array('sql'=>$sql);

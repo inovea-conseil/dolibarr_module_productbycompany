@@ -75,13 +75,13 @@ function productbycompany_prepare_head(ProductByCompany $object)
     $head[$h][1] = $langs->trans("ProductByCompanyCard");
     $head[$h][2] = 'card';
     $h++;
-	
+
 	// Show more tabs from modules
     // Entries must be declared in modules descriptor with line
     // $this->tabs = array('entity:+tabname:Title:@productbycompany:/productbycompany/mypage.php?id=__ID__');   to add new tab
     // $this->tabs = array('entity:-tabname:Title:@productbycompany:/productbycompany/mypage.php?id=__ID__');   to remove a tab
     complete_head_from_modules($conf, $langs, $object, $head, $h, 'productbycompany');
-	
+
 	return $head;
 }
 
@@ -120,7 +120,7 @@ function getFormConfirmProductByCompany($form, $object, $action)
     elseif ($action === 'delete' && !empty($user->rights->productbycompany->write))
     {
         $body = $langs->trans('ConfirmDeleteProductByCompanyBody');
-        $formconfirm = $form->formconfirm($_SERVER['PHP_SELF'] . '?id=' . $object->id, $langs->trans('ConfirmDeleteProductByCompanyTitle'), $body, 'confirm_delete', '', 0, 1);
+        $formconfirm = $form->formconfirm($_SERVER['PHP_SELF'] . '?origin_id='.$object->origin_id.'&type='.$object->origin_type.'&id=' . $object->id, $langs->trans('ConfirmDeleteProductByCompanyTitle'), $body, 'confirm_delete', '', 0, 1);
     }
     elseif ($action === 'clone' && !empty($user->rights->productbycompany->write))
     {
@@ -134,4 +134,30 @@ function getFormConfirmProductByCompany($form, $object, $action)
     }
 
     return $formconfirm;
+}
+
+/**
+ * methode eval du listView pour renvoi getNomUrl
+ */
+function getOriginLink($type, $val)
+{
+	global $db;
+
+	$link = '';
+	if ($type == 'company')
+	{
+		require_once DOL_DOCUMENT_ROOT.'/product/class/product.class.php';
+		$obj = new Product($db);
+		$res = $obj->fetch($val);
+	}
+	else if ($type == 'product')
+	{
+		require_once DOL_DOCUMENT_ROOT.'/societe/class/societe.class.php';
+		$obj = new Societe($db);
+		$res = $obj->fetch($val);
+	}
+
+	if ($res > 0) $link = $obj->getNomUrl(1);
+
+	return $link;
 }

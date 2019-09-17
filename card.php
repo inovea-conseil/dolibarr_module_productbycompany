@@ -31,7 +31,8 @@ $object = new ProductByCompany($db);
 $action = GETPOST('action');
 $origin_id = GETPOST('origin_id');
 $type = GETPOST('type');
-$fk_productbycompany = GETPOST('fk_productbycompany');
+$id = GETPOST('id');
+$confirm = GETPOST('confirm');
 
 $contextpage = GETPOST('contextpage', 'aZ') ? GETPOST('contextpage', 'aZ') : 'productbycompanycard';   // To manage different context of search
 $backtopage = GETPOST('backtopage', 'alpha');
@@ -70,7 +71,9 @@ else
     $title = $langs->trans('ThirdParty');
 }
 
-$object->fetch($fk_productbycompany);
+$object->fetch($id);
+$object->origin_id = $origin_id;
+$object->origin_type = $type;
 
 $hookmanager->initHooks(array('productbycompanycard', 'globalcard'));
 
@@ -116,9 +119,6 @@ if (empty($reshook))
     // For object linked
     include DOL_DOCUMENT_ROOT.'/core/actions_dellink.inc.php';		// Must be include, not include_once
 
-
-
-
     $error = 0;
 	switch ($action) {
 		case 'add':
@@ -130,23 +130,23 @@ if (empty($reshook))
                 if ($ret < 0) $error++;
             }
 
-//			$object->date_other = dol_mktime(GETPOST('starthour'), GETPOST('startmin'), 0, GETPOST('startmonth'), GETPOST('startday'), GETPOST('startyear'));
-
-			// Check parameters
-//			if (empty($object->date_other))
-//			{
-//				$error++;
-//				setEventMessages($langs->trans('warning_date_must_be_fill'), array(), 'warnings');
-//			}
-
-			// ...
+            if ($action == 'add')
+			{
+				$exists = $object->alreadyExists();
+				if ($exists > 0)
+				{
+					setEventMessages($langs->trans('RecordAlreadyExists'), '', 'errors');
+					header('Location: '.dol_buildpath('/productbycompany/list.php', 1).'?id='.$origin_object->id.'&type='.$type);
+					exit;
+				}
+			}
 
 			if ($error > 0)
 			{
 				$action = 'edit';
 				break;
 			}
-			unset($object->id);
+
 			$res = $object->save($user);
             if ($res < 0)
             {
@@ -180,10 +180,26 @@ if (empty($reshook))
             if ($error) $action = 'edit_extras';
             else
             {
-                header('Location: '.dol_buildpath('/productbycompany/card.php', 1).'?id='.$object->id);
-                exit;
+				header('Location: '.dol_buildpath('/productbycompany/list.php', 1).'?id='.$origin_object->id.'&type='.$type);
+				exit;
             }
             break;
+		case 'confirm_delete':
+			if ($confirm != 'yes') {$action = ''; break;}
+			$object->setValues($_REQUEST);
+			$res = $object->delete($user);
+			if ($res < 0)
+			{
+				setEventMessages($object->error, $object->errors, "errors");
+				$error++;
+			}
+
+			if (!$error)
+			{
+				header('Location: '.dol_buildpath('/productbycompany/list.php', 1).'?id='.$origin_object->id.'&type='.$type);
+				exit;
+			}
+			break;
 	}
 }
 
@@ -245,11 +261,15 @@ else
             print '<input type="hidden" name="token" value="'.$_SESSION['newtoken'].'">';
             print '<input type="hidden" name="action" value="update">';
             print '<input type="hidden" name="backtopage" value="'.$backtopage.'">';
-            print '<input type="hidden" name="id" value="'.$origin_object->id.'">';
+            print '<input type="hidden" name="origin_id" value="'.$origin_object->id.'">';
+            print '<input type="hidden" name="type" value="'.$type.'">';
+            print '<input type="hidden" name="id" value="'.$id.'">';
 
-            $head = productbycompany_prepare_head($origin_object);
+            if ($type == 'product') $head = product_prepare_head($origin_object);
+            else $head = societe_prepare_head($origin_object);
+
             $picto = 'productbycompany@productbycompany';
-            dol_fiche_head($head, 'card', $langs->trans('ProductByCompany'), 0, $picto);
+            dol_fiche_head($head, 'productbycompanytab', $langs->trans('ProductByCompany'), 0, $picto);
 
             print '<table class="border centpercent">'."\n";
 
@@ -349,10 +369,10 @@ else
                 if (!empty($user->rights->productbycompany->write))
                 {
                     // Modify
-                    print '<div class="inline-block divButAction"><a class="butAction" href="'.$_SERVER["PHP_SELF"].'?origin_id='.$origin_object->id.'&type='.$type.'&fk_productbycompany='.$object->id.'&action=edit">'.$langs->trans("ProductByCompanyModify").'</a></div>'."\n";
+                    print '<div class="inline-block divButAction"><a class="butAction" href="'.$_SERVER["PHP_SELF"].'?origin_id='.$origin_object->id.'&type='.$type.'&id='.$object->id.'&action=edit">'.$langs->trans("ProductByCompanyModify").'</a></div>'."\n";
 
                     // Delete
-                    print '<div class="inline-block divButAction"><a class="butActionDelete" href="'.$_SERVER["PHP_SELF"].'?origin_id='.$origin_object->id.'&type='.$type.'&fk_productbycompany='.$object->id.'&action=delete">'.$langs->trans("ProductByCompanyDelete").'</a></div>'."\n";
+                    print '<div class="inline-block divButAction"><a class="butActionDelete" href="'.$_SERVER["PHP_SELF"].'?origin_id='.$origin_object->id.'&type='.$type.'&id='.$object->id.'&action=delete">'.$langs->trans("ProductByCompanyDelete").'</a></div>'."\n";
 
                 }
                 else

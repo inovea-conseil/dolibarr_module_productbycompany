@@ -44,3 +44,4 @@ ConfirmDeleteProductByCompanyTitle=Confirmation de suppression
 ConfirmDeleteProductByCompanyBody=Souhaitez-vous vraiment supprimer cette fiche ProductByCompany %s ?
 
 DateCre=Date de création
+RecordAlreadyExists=Une référence personnalisée existe déjà pour ce produit pour ce tiers
