@@ -44,17 +44,28 @@ function getCustomRefCreateFields($id_prod, $fk_soc)
 	$out.= '<script type="text/javascript">
 				$("#customRefSelect").on("change",function()
 				{
-				    if($(this).val() !== \'none\')
+				    if($(this).val() != \'none\')
 				    {
 				        $("#customRef").val($(this).data("ref"));
 				    	$("#customLabel").val($(this).data("label"))
+				    	if ($(this).val() != \'custom\')
+				    	{
+				    	    $("#customRef").attr("disabled", true);
+				    	    $("#customLabel").attr("disabled", true);
+				    	}
+				    	else
+						{
+							$("#customRef").attr("disabled", false);
+				    	    $("#customLabel").attr("disabled", false);
+						}
 				    }
 				    else
 					{
 						$("#customRef").val(\'\');
 						$("#customLabel").val(\'\');
 					}
-				})</script>';
+				});
+				</script>';
 	$out.= '&nbsp;'.$langs->trans('Ref');
 	$out.= '<input type="text" name="customRef" id="customRef">';
 	$out.= '&nbsp;'.$langs->trans('Label');

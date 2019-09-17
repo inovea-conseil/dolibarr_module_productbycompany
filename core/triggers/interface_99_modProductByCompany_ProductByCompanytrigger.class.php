@@ -97,8 +97,8 @@ class InterfaceProductByCompanytrigger
             return $langs->trans("Unknown");
         }
     }
-	
-	
+
+
 	/**
 	 * Function called when a Dolibarrr business event is done.
 	 * All functions "run_trigger" are triggered if file is inside directory htdocs/core/triggers
@@ -114,8 +114,8 @@ class InterfaceProductByCompanytrigger
 		//For 8.0 remove warning
 		$result=$this->run_trigger($action, $object, $user, $langs, $conf);
 		return $result;
-	}	
-		
+	}
+
 
     /**
      * Function called when a Dolibarrr business event is done.
@@ -271,6 +271,7 @@ class InterfaceProductByCompanytrigger
             dol_syslog(
                 "Trigger '" . $this->name . "' for action '$action' launched by " . __FILE__ . ". id=" . $object->id
             );
+            $this->createCustomRef($object);
         } elseif ($action == 'LINEORDER_DELETE') {
             dol_syslog(
                 "Trigger '" . $this->name . "' for action '$action' launched by " . __FILE__ . ". id=" . $object->id
@@ -337,6 +338,7 @@ class InterfaceProductByCompanytrigger
             dol_syslog(
                 "Trigger '" . $this->name . "' for action '$action' launched by " . __FILE__ . ". id=" . $object->id
             );
+			$this->createCustomRef($object);
         } elseif ($action == 'LINEPROPAL_MODIFY') {
             dol_syslog(
                 "Trigger '" . $this->name . "' for action '$action' launched by " . __FILE__ . ". id=" . $object->id
@@ -411,6 +413,7 @@ class InterfaceProductByCompanytrigger
             dol_syslog(
                 "Trigger '" . $this->name . "' for action '$action' launched by " . __FILE__ . ". id=" . $object->id
             );
+			$this->createCustomRef($object);
         } elseif ($action == 'LINEBILL_DELETE') {
             dol_syslog(
                 "Trigger '" . $this->name . "' for action '$action' launched by " . __FILE__ . ". id=" . $object->id
@@ -586,4 +589,15 @@ class InterfaceProductByCompanytrigger
 
         return 0;
     }
+
+    public function createCustomRef(&$object)
+	{
+		$selected 		= GETPOST('customRefSelect');
+		$customRef		= GETPOST('customRef');
+		$customLabel 	= GETPOST('customLabel');
+		$majCustomRef	= GETPOST('majCustomRef');
+
+		var_dump($selected, $customRef, $customLabel, $majCustomRef);
+		var_dump($object); exit;
+	}
 }

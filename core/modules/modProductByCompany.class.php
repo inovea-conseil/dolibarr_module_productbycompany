@@ -94,7 +94,8 @@ class modProductByCompany extends DolibarrModules
 				,'propalcard'
 				,'invoicecard'
 				,'ordercard'
-			)
+			),
+			'triggers' => 1
 		);
 
 		// Data directories to create when module is enabled.
