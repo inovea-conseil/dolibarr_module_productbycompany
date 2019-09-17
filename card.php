@@ -141,6 +141,12 @@ if (empty($reshook))
 				}
 			}
 
+			if (empty($object->ref))
+			{
+				setEventMessage('RefIsRequired', 'errors');
+				$error++;
+			}
+
 			if ($error > 0)
 			{
 				$action = 'edit';

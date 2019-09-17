@@ -223,7 +223,8 @@ class ProductByCompany extends SeedObject
 		}
 		else
 		{
-			return $this->db->num_rows($res);
+			$obj = $this->db->fetch_object($res);
+			return (int) $obj->nb;
 		}
 	}
 

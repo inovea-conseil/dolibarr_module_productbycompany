@@ -45,3 +45,4 @@ ConfirmDeleteProductByCompanyBody=Souhaitez-vous vraiment supprimer cette fiche 
 
 DateCre=Date de création
 RecordAlreadyExists=Une référence personnalisée existe déjà pour ce produit pour ce tiers
+RefIsRequired=Le champ "Ref" est requis
