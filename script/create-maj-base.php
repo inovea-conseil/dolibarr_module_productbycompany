@@ -32,3 +32,6 @@ dol_include_once('/productbycompany/class/productbycompany.class.php');
 
 $o=new ProductByCompany($db);
 $o->init_db_by_vars();
+
+$o=new ProductByCompanyDet($db);
+$o->init_db_by_vars();

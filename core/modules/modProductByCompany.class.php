@@ -91,6 +91,9 @@ class modProductByCompany extends DolibarrModules
 		$this->module_parts = array(
 			'hooks' => array (
 				'pdfgeneration'
+				,'propalcard'
+				,'invoicecard'
+				,'ordercard'
 			)
 		);
 

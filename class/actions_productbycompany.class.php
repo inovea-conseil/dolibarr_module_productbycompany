@@ -92,6 +92,87 @@ class ActionsProductByCompany
 		}*/
 	}
 
+	public function formEditProductOptions($parameters, &$object, &$action, $hookmanager)
+	{
+		global $langs, $form;
+		$langs->load('productbycompany@productbycompany');
+
+		$TContext = explode(':', $parameters['context']);
+
+		if (
+			in_array('propalcard', $TContext)
+			|| in_array('invoicecard', $TContext)
+			|| in_array('ordercard', $TContext)
+		)
+		{
+			?>
+			<span id="js_customref"></span>
+			<script type="text/javascript">
+
+                // afficher les champs ref et label + "checkbox mise à jour existant"
+
+                $(document).ready(function(){
+
+					$.ajax({
+						url : "<?php echo dol_buildpath('/productbycompany/script/interface.php',1) ?>"
+						,data:{
+							get: 'getCustomRefEditFields'
+							,id:$(this).val()
+						}
+						,method:"get"
+					}).done(function(html){
+						$("#js_customref").html(html);
+					});
+
+                });
+			</script>
+
+			<?php
+
+		}
+
+	}
+
+	public function formCreateProductOptions($parameters, &$object, &$action, $hookmanager)
+	{
+		global $langs, $form;
+		$langs->load('productbycompany@productbycompany');
+
+		$TContext = explode(':', $parameters['context']);
+
+		if (
+			in_array('propalcard', $TContext)
+			|| in_array('invoicecard', $TContext)
+			|| in_array('ordercard', $TContext)
+		)
+		{
+			?>
+			<span id="js_customref"></span>
+			<script type="text/javascript">
+
+			// afficher les champs ref et label + "checkbox mise à jour existant"
+
+            $(document).ready(function(){
+                $('#idprod').on('change', function(e){
+                    $.ajax({
+                        url : "<?php echo dol_buildpath('/productbycompany/script/interface.php',1) ?>"
+                        ,data:{
+                            get: 'getCustomRefCreateFields'
+                            ,id_prod:$(this).val()
+							,fk_soc:<?php echo $object->socid; ?>
+                        }
+                        ,method:"get"
+                    }).done(function(html){
+                        $("#js_customref").html(html);
+                    });
+                });
+            });
+			</script>
+
+			<?php
+		}
+	}
+
 	public function pdf_writelinedesc($parameters, &$object, &$action, $hookmanager)
 	{
 		$TContext = explode(':', $parameters['context']);

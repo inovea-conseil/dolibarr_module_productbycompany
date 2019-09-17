@@ -173,7 +173,31 @@ class ProductByCompany extends SeedObject
 		$this->entity = $conf->entity;
     }
 
-    /**
+    public function fetchByArray($params = array(), $loadChild = true)
+	{
+		if (empty($params)) return -1;
+
+		$sql = "SELECT rowid FROM ".MAIN_DB_PREFIX.$this->table_element;
+		$sql.= " WHERE 1=1";
+		foreach ($params as $key => $value)
+		{
+			$sql .= " AND " . $key . " = " . $this->db->escape($value);
+		}
+
+		$res = $this->db->query($sql);
+		if ($res)
+		{
+			if ($this->db->num_rows($res))
+			{
+				$obj = $this->db->fetch_object($res);
+				$this->fetch($obj->rowid, $loadChild);
+			}
+			else return 0;
+		}
+		else return -2;
+	}
+
+	/**
      * @param User $user User object
      * @return int
      */
@@ -276,21 +300,46 @@ class ProductByCompany extends SeedObject
 }
 
 
-//class ProductByCompanyDet extends SeedObject
-//{
-//    public $table_element = 'productbycompanydet';
-//
-//    public $element = 'productbycompanydet';
-//
-//
-//    /**
-//     * ProductByCompanyDet constructor.
-//     * @param DoliDB    $db    Database connector
-//     */
-//    public function __construct($db)
-//    {
-//        $this->db = $db;
-//
-//        $this->init();
-//    }
-//}
+class ProductByCompanyDet extends ProductByCompany
+{
+    public $table_element = 'product_by_company_det';
+
+    public $element = 'productbycompanydet';
+
+    public $fk_origin;
+
+    public $origin_type;
+
+
+    /**
+     * ProductByCompanyDet constructor.
+     * @param DoliDB    $db    Database connector
+     */
+    public function __construct($db)
+    {
+        $this->db = $db;
+
+        $this->fields['fk_origin'] = array(
+			'type' => 'integer',
+			'label' => 'Origin',
+			'enabled' => 1,
+			'visible' => 0,
+			'default' => 1,
+			'notnull' => 1,
+			'index' => 1,
+			'position' => 70
+		);
+
+		$this->fields['origin_type'] = array(
+			'type' => 'varchar(128)',
+			'length' => 128,
+			'label' => 'Origin_id',
+			'enabled' => 1,
+			'visible' => 0,
+			'notnull' => 1,
+			'position' => 80
+		);
+
+        $this->init();
+    }
+}

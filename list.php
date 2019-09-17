@@ -33,12 +33,9 @@ $toselect = GETPOST('toselect', 'array');
 
 $id = GETPOST('id');
 $type = GETPOST('type');
+$ref = GETPOST('ref');
 
-if (empty($id) || !in_array($type, array('product', 'company')))
-{
-    accessforbidden();
-}
-elseif ($type === 'product')
+if ($type === 'product')
 {
     require_once DOL_DOCUMENT_ROOT.'/product/class/product.class.php';
     require_once DOL_DOCUMENT_ROOT.'/core/lib/product.lib.php';
@@ -46,7 +43,8 @@ elseif ($type === 'product')
     $langs->loadLangs(array('products', 'other'));
 
     $object = new Product($db);
-    $object->fetch($id);
+    $object->fetch($id, $ref);
+	$id = $object->id;
 
     $head = product_prepare_head($object);
     $picto = ($object->type== Product::TYPE_SERVICE?'service':'product');
@@ -62,12 +60,18 @@ else
     $langs->loadLangs(array("companies","commercial"));
 
     $object = new Societe($db);
-    $object->fetch($id);
+	$object->fetch($id, $ref);
+	$id = $object->id;
 
     $head = societe_prepare_head($object);
     $picto = 'company';
     $title = $langs->trans('ThirdParty');
     $titlelist = $langs->trans('ProductByCompanyListFromCompany');
+}
+
+if (empty($id) || !in_array($type, array('product', 'company')))
+{
+	accessforbidden();
 }
 
 $hookmanager->initHooks(array('productbycompanylist'));
@@ -88,27 +92,6 @@ if (empty($reshook))
 {
 	// Selection of new fields
 	include DOL_DOCUMENT_ROOT.'/core/actions_changeselectedfields.inc.php';
-
-	// Purge search criteria
-	if (GETPOST('button_removefilter_x', 'alpha') || GETPOST('button_removefilter.x', 'alpha') || GETPOST('button_removefilter', 'alpha')) // All tests are required to be compatible with all browsers
-	{
-		$sall="";
-		$search_ref="";
-		$search_label="";
-		$search_barcode="";
-		$search_categ=0;
-		$search_tosell="";
-		$search_tobuy="";
-		$search_tobatch='';
-		//$search_type='';						// There is 2 types of list: a list of product and a list of services. No list with both. So when we clear search criteria, we must keep the filter on type.
-
-		$show_childproducts = '';
-		$search_accountancy_code_sell='';
-		$search_accountancy_code_sell_intra='';
-		$search_accountancy_code_sell_export='';
-		$search_accountancy_code_buy='';
-		$search_array_options=array();
-	}
 
 	// Mass actions
 	$objectclass='ProductByCompany';
@@ -168,8 +151,10 @@ $sql.=$hookmanager->resPrint;
 
 
 dol_fiche_head($head, 'productbycompanytab', $title, -1, $picto);
+$paramid = $type == 'product' ? 'ref' : 'id';
+$fieldid = $type == 'product' ? 'ref' : 'rowid';
 
-dol_banner_tab($object, 'type='.$type.'&id', '', ($user->socid?0:1));
+dol_banner_tab($object, $paramid, '', ($user->socid?0:1), $fieldid, 'ref', '', '&type='.$type);
 
 // PRINT LIST
 $newcardbutton = '';
