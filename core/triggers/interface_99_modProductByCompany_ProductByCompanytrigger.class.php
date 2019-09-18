@@ -272,6 +272,11 @@ class InterfaceProductByCompanytrigger
                 "Trigger '" . $this->name . "' for action '$action' launched by " . __FILE__ . ". id=" . $object->id
             );
             return $this->createCustomRef($object);
+        } elseif ($action == 'LINEORDER_INSERT') {
+            dol_syslog(
+                "Trigger '" . $this->name . "' for action '$action' launched by " . __FILE__ . ". id=" . $object->id
+            );
+            return $this->createCustomRef($object);
         } elseif ($action == 'LINEORDER_DELETE') {
             dol_syslog(
                 "Trigger '" . $this->name . "' for action '$action' launched by " . __FILE__ . ". id=" . $object->id
