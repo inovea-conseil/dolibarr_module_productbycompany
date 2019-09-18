@@ -229,7 +229,7 @@ echo $r->render($sql, array(
     )
 	,'subQuery' => array()
 	,'link' => array(
-	    'fk_productbycompany' => '<a href="'.dol_buildpath('productbycompany/card.php', 1).'?origin_id='.$object->id.'&type='.$type.'&id=@val@">@val@</a>'
+	    'fk_productbycompany' => '<a href="'.dol_buildpath('productbycompany/card.php', 1).'?origin_id='.$object->id.'&type='.$type.'&id=@val@&action=edit">@val@</a>'
     )
 	,'type' => array(
 		'date_creation' => 'date' // [datetime], [hour], [money], [number], [integer]
