@@ -117,7 +117,8 @@ class ActionsProductByCompany
 						url : "<?php echo dol_buildpath('/productbycompany/script/interface.php',1) ?>"
 						,data:{
 							get: 'getCustomRefEditFields'
-							,id:$(this).val()
+							,id: '<?php echo $parameters['line']->id; ?>'
+							,element_type: '<?php echo $parameters['line']->element; ?>'
 						}
 						,method:"get"
 					}).done(function(html){

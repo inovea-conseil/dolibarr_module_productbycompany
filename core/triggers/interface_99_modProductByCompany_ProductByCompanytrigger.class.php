@@ -271,7 +271,7 @@ class InterfaceProductByCompanytrigger
             dol_syslog(
                 "Trigger '" . $this->name . "' for action '$action' launched by " . __FILE__ . ". id=" . $object->id
             );
-            $this->createCustomRef($object);
+            return $this->createCustomRef($object);
         } elseif ($action == 'LINEORDER_DELETE') {
             dol_syslog(
                 "Trigger '" . $this->name . "' for action '$action' launched by " . __FILE__ . ". id=" . $object->id
@@ -338,7 +338,7 @@ class InterfaceProductByCompanytrigger
             dol_syslog(
                 "Trigger '" . $this->name . "' for action '$action' launched by " . __FILE__ . ". id=" . $object->id
             );
-			$this->createCustomRef($object);
+			return $this->createCustomRef($object);
         } elseif ($action == 'LINEPROPAL_MODIFY') {
             dol_syslog(
                 "Trigger '" . $this->name . "' for action '$action' launched by " . __FILE__ . ". id=" . $object->id
@@ -413,7 +413,7 @@ class InterfaceProductByCompanytrigger
             dol_syslog(
                 "Trigger '" . $this->name . "' for action '$action' launched by " . __FILE__ . ". id=" . $object->id
             );
-			$this->createCustomRef($object);
+			return $this->createCustomRef($object);
         } elseif ($action == 'LINEBILL_DELETE') {
             dol_syslog(
                 "Trigger '" . $this->name . "' for action '$action' launched by " . __FILE__ . ". id=" . $object->id
@@ -592,12 +592,113 @@ class InterfaceProductByCompanytrigger
 
     public function createCustomRef(&$object)
 	{
-		$selected 		= GETPOST('customRefSelect');
-		$customRef		= GETPOST('customRef');
-		$customLabel 	= GETPOST('customLabel');
-		$majCustomRef	= GETPOST('majCustomRef');
+		global $langs, $db, $user;
+		$langs->load('productbycompany@productbycompany');
 
-		var_dump($selected, $customRef, $customLabel, $majCustomRef);
-		var_dump($object); exit;
+		$selected 		= GETPOST('customRefSelect');
+		$customRef		= trim(GETPOST('customRef'));
+		$customLabel 	= trim(GETPOST('customLabel'));
+		$majCustomRef	= (bool) GETPOST('majCustomRef');
+		$customRowid	= GETPOST('customRowid');
+		$customDetRowid = GETPOST('customDetRowid');
+
+		if (! empty($selected))
+		{
+			// récupération du fk_soc
+			$parentTable = '';
+			switch ($object->element)
+			{
+				case 'commandedet':
+					$parentTable = 'commande';
+					break;
+				case 'facturedet':
+					$parentTable = 'facture';
+					break;
+				case 'propaldet':
+					$parentTable = 'propal';
+					break;
+				default :
+					return 0;
+			}
+
+			$sql = "SELECT fk_soc FROM ".MAIN_DB_PREFIX.$parentTable;
+			$sql.= " WHERE rowid = ".$object->{"fk_".$parentTable};
+			$resql = $db->query($sql);
+			if ($resql)
+			{
+				$obj = $db->fetch_object($resql);
+				$fk_soc = $obj->fk_soc;
+			}
+
+			$data = array(
+				'fk_soc' 		=> $fk_soc
+				,'fk_product' 	=> $object->fk_product
+				,'ref' 			=> $customRef
+				,'label' 		=> $customLabel
+				,'fk_origin' 	=> $object->id
+				,'origin_type' 	=> $object->element
+			);
+
+			dol_include_once('/productbycompany/class/productbycompany.class.php');
+			$parent_pbc 	= new ProductByCompany($db);
+			$pbc_det 		= new ProductByCompanyDet($db);
+
+			if ($selected !== 'none' && empty($customRef))
+			{
+				setEventMessage($langs->trans('RefIsAMandatoryField'), 'errors');
+				return -1;
+			}
+
+			if ($selected !== 'none')
+			{
+				if ($selected == $customRowid)
+				{
+					$pbc_det->setValues($data);
+					$ret = $pbc_det->save($user);
+				}
+				else // customisation de l'existant ou création
+				{
+					if (empty($customRowid)) // création du pbc et du pbc ligne
+					{
+						if (empty($customDetRowid))
+						{
+							$parent_pbc->setValues($data);
+							$parent_pbc->save($user);
+
+							$pbc_det->setValues($data);
+							$pbc_det->save($user);
+						}
+						else // en edition customDetRowid est envoyé
+						{
+							$pbc_det->id = $customDetRowid;
+							$pbc_det->setValues($data);
+							$pbc_det->save($user);
+						}
+					}
+					else
+					{
+						if ($majCustomRef) // mise à jour des valeurs existantes
+						{
+							$parent_pbc->fetch($customRowid);
+							$parent_pbc->setValues($data);
+							$parent_pbc->save($user);
+						}
+
+						$pbc_det->setValues($data);
+						$pbc_det->save($user);
+					}
+				}
+			}
+			else // pas de customisation
+			{
+				$pbc_det->fk_origin = $object->id;
+				$pbc_det->origin_type = $object->element;
+
+				$exists = $pbc_det->alreadyExists();
+				var_dump($pbc_det); exit;
+			}
+		}
+		return 0;
+
 	}
 }

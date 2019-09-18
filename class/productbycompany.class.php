@@ -181,7 +181,7 @@ class ProductByCompany extends SeedObject
 		$sql.= " WHERE 1=1";
 		foreach ($params as $key => $value)
 		{
-			$sql .= " AND " . $key . " = " . $this->db->escape($value);
+			$sql .= " AND " . $key . " = '" . $this->db->escape($value)."'";
 		}
 
 		$res = $this->db->query($sql);
@@ -342,4 +342,27 @@ class ProductByCompanyDet extends ProductByCompany
 
         $this->init();
     }
+
+	/**
+	 * Verify if the productbycompanydet already exists or not
+	 * @return int > 0 if existing, 0 if not or < 0 if KO
+	 */
+	public function alreadyExists()
+	{
+		$sql = "SELECT count(rowid) as nb FROM ".MAIN_DB_PREFIX.$this->table_element;
+		$sql.= " WHERE fk_origin = ".$this->fk_origin;
+		$sql.= " AND origin_type = '".$this->origin_type."'";
+
+		$res = $this->db->query($sql);
+		if (!$res)
+		{
+			$this->error = $this->db->lasterror;
+			return -1;
+		}
+		else
+		{
+			$obj = $this->db->fetch_object($res);
+			return (int) $obj->nb;
+		}
+	}
 }

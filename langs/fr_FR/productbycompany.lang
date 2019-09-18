@@ -48,3 +48,4 @@ RecordAlreadyExists=Une référence personnalisée existe déjà pour ce produit
 RefIsRequired=Le champ "Ref" est requis
 CustomRef=Produit personnalisé
 majCustomRef=Mettre à jour la référence existante
+RefIsAMandatoryField=Le champs Ref ne peut être vide
