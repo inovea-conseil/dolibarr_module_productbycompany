@@ -103,6 +103,9 @@ class ActionsProductByCompany
 			in_array('propalcard', $TContext)
 			|| in_array('invoicecard', $TContext)
 			|| in_array('ordercard', $TContext)
+			|| in_array('supplier_proposalcard', $TContext)
+			|| in_array('invoicesuppliercard', $TContext)
+			|| in_array('ordersuppliercard', $TContext)
 		)
 		{
 			?>
@@ -154,6 +157,7 @@ class ActionsProductByCompany
 			// afficher les champs ref et label + "checkbox mise à jour existant"
 
             $(document).ready(function(){
+                console.log('chu la');
                 $('#idprod').on('change', function(e){
                     $.ajax({
                         url : "<?php echo dol_buildpath('/productbycompany/script/interface.php',1) ?>"
@@ -174,13 +178,65 @@ class ActionsProductByCompany
 		}
 	}
 
+	public function formCreateProductSupplierOptions($parameters, &$object, &$action, $hookmanager)
+	{
+		global $langs, $form;
+		$langs->load('productbycompany@productbycompany');
+
+		$TContext = explode(':', $parameters['context']);
+
+		if (
+			in_array('supplier_proposalcard', $TContext)
+			|| in_array('invoicesuppliercard', $TContext)
+			|| in_array('ordersuppliercard', $TContext)
+		)
+		{
+			?>
+			<span id="js_customref"></span>
+			<script type="text/javascript">
+
+                // afficher les champs ref et label + "checkbox mise à jour existant"
+
+                $(document).ready(function(){
+                    console.log('chu la');
+
+                    $('#idprodfournprice').on('change', function(e){
+                        $.ajax({
+                            url : "<?php echo dol_buildpath('/productbycompany/script/interface.php',1) ?>"
+                            ,data:{
+                                get: 'getCustomRefCreateFields'
+                                ,id_prod:$(this).val().substr(7)
+                                ,fk_soc:<?php echo $object->socid; ?>
+                            }
+                            ,method:"get"
+                        }).done(function(html){
+                            $("#js_customref").html(html);
+                        });
+                    });
+                });
+			</script>
+
+			<?php
+		}
+	}
+
 	public function pdf_writelinedesc($parameters, &$object, &$action, $hookmanager)
 	{
 		global $db;
 
 		$TContext = explode(':', $parameters['context']);
 
-		if (in_array('pdfgeneration', $TContext) && ($object->element == 'propal' || $object->element == 'commande' || $object->element == 'facture'))
+		if (
+			in_array('pdfgeneration', $TContext)
+			&& (
+				$object->element == 'propal'
+				|| $object->element == 'commande'
+				|| $object->element == 'facture'
+				|| $object->element == 'supplier_proposal'
+				|| $object->element == 'order_supplier'
+				|| $object->element == 'invoice_supplier'
+			)
+		)
 		{
 			foreach($parameters as $key => $value) {
 				$$key = $value;

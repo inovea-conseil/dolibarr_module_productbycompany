@@ -94,6 +94,9 @@ class modProductByCompany extends DolibarrModules
 				,'propalcard'
 				,'invoicecard'
 				,'ordercard'
+				,'ordersuppliercard'
+				,'invoicesuppliercard'
+				,'supplier_proposalcard'
 			),
 			'triggers' => 1
 		);

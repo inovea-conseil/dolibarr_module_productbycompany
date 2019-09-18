@@ -301,6 +301,21 @@ class InterfaceProductByCompanytrigger
             dol_syslog(
                 "Trigger '" . $this->name . "' for action '$action' launched by " . __FILE__ . ". id=" . $object->id
             );
+        } elseif ($action == 'LINEORDER_SUPPLIER_CREATE') {
+            dol_syslog(
+                "Trigger '" . $this->name . "' for action '$action' launched by " . __FILE__ . ". id=" . $object->id
+            );
+            return $this->createCustomRef($object);
+        } elseif ($action == 'LINEORDER_SUPPLIER_UPDATE') {
+            dol_syslog(
+                "Trigger '" . $this->name . "' for action '$action' launched by " . __FILE__ . ". id=" . $object->id
+            );
+            return $this->createCustomRef($object);
+        } elseif ($action == 'LINEORDER_SUPPLIER_DELETE') {
+            dol_syslog(
+                "Trigger '" . $this->name . "' for action '$action' launched by " . __FILE__ . ". id=" . $object->id
+            );
+            return $this->deleteCustomRef($object);
         }
 
         // Proposals
@@ -601,6 +616,41 @@ class InterfaceProductByCompanytrigger
             );
         }
 
+
+        elseif ($action == 'LINEBILL_SUPPLIER_CREATE') {
+			dol_syslog(
+				"Trigger '" . $this->name . "' for action '$action' launched by " . __FILE__ . ". id=" . $object->id
+			);
+			return $this->createCustomRef($object);
+		} elseif ($action == 'LINEBILL_SUPPLIER_UPDATE') {
+			dol_syslog(
+				"Trigger '" . $this->name . "' for action '$action' launched by " . __FILE__ . ". id=" . $object->id
+			);
+			return $this->createCustomRef($object);
+		} elseif ($action == 'LINEBILL_SUPPLIER_DELETE') {
+			dol_syslog(
+				"Trigger '" . $this->name . "' for action '$action' launched by " . __FILE__ . ". id=" . $object->id
+			);
+			return $this->deleteCustomRef($object);
+		}
+
+        elseif ($action == 'LINESUPPLIER_PROPOSAL_INSERT') {
+			dol_syslog(
+				"Trigger '" . $this->name . "' for action '$action' launched by " . __FILE__ . ". id=" . $object->id
+			);
+			return $this->createCustomRef($object);
+		} elseif ($action == 'LINESUPPLIER_PROPOSAL_UPDATE') {
+			dol_syslog(
+				"Trigger '" . $this->name . "' for action '$action' launched by " . __FILE__ . ". id=" . $object->id
+			);
+			return $this->createCustomRef($object);
+		} elseif ($action == 'LINESUPPLIER_PROPOSAL_DELETE') {
+			dol_syslog(
+				"Trigger '" . $this->name . "' for action '$action' launched by " . __FILE__ . ". id=" . $object->id
+			);
+			return $this->deleteCustomRef($object);
+		}
+
         return 0;
     }
 
@@ -624,19 +674,34 @@ class InterfaceProductByCompanytrigger
 			{
 				case 'commandedet':
 					$parentTable = 'commande';
+					$fk="fk_".$parentTable;
 					break;
 				case 'facturedet':
 					$parentTable = 'facture';
+					$fk="fk_".$parentTable;
 					break;
 				case 'propaldet':
 					$parentTable = 'propal';
+					$fk="fk_".$parentTable;
+					break;
+				case 'commande_fournisseurdet':
+					$parentTable = 'commande_fournisseur';
+					$fk='fk_commande';
+					break;
+				case 'facture_fourn_det':
+					$parentTable = 'facture_fourn';
+					$fk='fk_facture_fourn';
+					break;
+				case 'supplier_proposaldet':
+					$parentTable = 'supplier_proposal';
+					$fk='fk_supplier_proposal';
 					break;
 				default :
 					return 0;
 			}
 
 			$sql = "SELECT fk_soc FROM ".MAIN_DB_PREFIX.$parentTable;
-			$sql.= " WHERE rowid = ".$object->{"fk_".$parentTable};
+			$sql.= " WHERE rowid = ".$object->{$fk};
 			$resql = $db->query($sql);
 			if ($resql)
 			{
