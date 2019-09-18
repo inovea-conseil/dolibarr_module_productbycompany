@@ -33,6 +33,8 @@ $origin_id = GETPOST('origin_id');
 $type = GETPOST('type');
 $id = GETPOST('id');
 $confirm = GETPOST('confirm');
+$fk_soc = GETPOST('fk_soc');
+$fk_product = GETPOST('fk_product');
 
 $contextpage = GETPOST('contextpage', 'aZ') ? GETPOST('contextpage', 'aZ') : 'productbycompanycard';   // To manage different context of search
 $backtopage = GETPOST('backtopage', 'alpha');
@@ -250,6 +252,29 @@ if ($action == 'create')
     print '</div>';
 
     print '</form>';
+
+	// cacher les champs inutiles
+	$trtohide = '';
+    if ($type == 'company' && !empty($fk_soc))
+    {
+    	$trtohide = '#field_fk_soc';
+	}
+    else if ($type == 'product' && !empty($fk_product))
+    {
+		$trtohide = '#field_fk_product';
+	}
+
+    if (!empty($trtohide))
+	{
+		?>
+		<script type="text/javascript">
+            $(document).ready(function(){
+                var trtohide = '<?php echo $trtohide; ?>';
+                $(trtohide).hide();
+            });
+		</script>
+		<?php
+	}
 }
 else
 {
