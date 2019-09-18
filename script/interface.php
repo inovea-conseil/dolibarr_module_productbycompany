@@ -34,7 +34,7 @@ function getCustomRefCreateFields($id_prod, $fk_soc)
 	$exists = $customRef->alreadyExists();
 	if ($exists > 0)
 	{
-		$customRef->fetchByArray(array('fk_product'=>$id_prod, 'fk_soc'=>$fk_soc), false);
+		$customRef->fetch($exists);
 		$options[$customRef->id] = $customRef->ref;
 		$moreparam = "data-ref='$customRef->ref' data-label='$customRef->label'";
 	}
@@ -104,7 +104,7 @@ function getCustomRefEditFields($id, $element_type)
 	$exists = $customRef->alreadyExists();
 	if ($exists > 0)
 	{
-		$customRef->fetchByArray(array('fk_origin'=>$id, 'origin_type'=>$element_type), false);
+		$customRef->fetch($exists);
 		$options[$customRef->id] = $customRef->ref;
 		$moreparam = "data-ref='$customRef->ref' data-label='$customRef->label'";
 	}

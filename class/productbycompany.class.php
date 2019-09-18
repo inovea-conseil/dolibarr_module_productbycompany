@@ -235,7 +235,7 @@ class ProductByCompany extends SeedObject
 	 */
     public function alreadyExists()
 	{
-		$sql = "SELECT count(rowid) as nb FROM ".MAIN_DB_PREFIX.$this->table_element;
+		$sql = "SELECT rowid FROM ".MAIN_DB_PREFIX.$this->table_element;
 		$sql.= " WHERE fk_soc = ".$this->fk_soc;
 		$sql.= " AND fk_product = ".$this->fk_product;
 
@@ -248,7 +248,7 @@ class ProductByCompany extends SeedObject
 		else
 		{
 			$obj = $this->db->fetch_object($res);
-			return (int) $obj->nb;
+			return (int) $obj->rowid;
 		}
 	}
 
@@ -349,7 +349,7 @@ class ProductByCompanyDet extends ProductByCompany
 	 */
 	public function alreadyExists()
 	{
-		$sql = "SELECT count(rowid) as nb FROM ".MAIN_DB_PREFIX.$this->table_element;
+		$sql = "SELECT rowid FROM ".MAIN_DB_PREFIX.$this->table_element;
 		$sql.= " WHERE fk_origin = ".$this->fk_origin;
 		$sql.= " AND origin_type = '".$this->origin_type."'";
 
@@ -362,7 +362,7 @@ class ProductByCompanyDet extends ProductByCompany
 		else
 		{
 			$obj = $this->db->fetch_object($res);
-			return (int) $obj->nb;
+			return (int) $obj->rowid;
 		}
 	}
 }

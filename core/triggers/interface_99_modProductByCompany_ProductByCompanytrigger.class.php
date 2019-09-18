@@ -272,7 +272,7 @@ class InterfaceProductByCompanytrigger
                 "Trigger '" . $this->name . "' for action '$action' launched by " . __FILE__ . ". id=" . $object->id
             );
             return $this->createCustomRef($object);
-        } elseif ($action == 'LINEORDER_INSERT') {
+        } elseif ($action == 'LINEORDER_UPDATE') {
             dol_syslog(
                 "Trigger '" . $this->name . "' for action '$action' launched by " . __FILE__ . ". id=" . $object->id
             );
@@ -281,6 +281,7 @@ class InterfaceProductByCompanytrigger
             dol_syslog(
                 "Trigger '" . $this->name . "' for action '$action' launched by " . __FILE__ . ". id=" . $object->id
             );
+			return $this->deleteCustomRef($object);
         }
 
         // Supplier orders
@@ -344,14 +345,16 @@ class InterfaceProductByCompanytrigger
                 "Trigger '" . $this->name . "' for action '$action' launched by " . __FILE__ . ". id=" . $object->id
             );
 			return $this->createCustomRef($object);
-        } elseif ($action == 'LINEPROPAL_MODIFY') {
+        } elseif ($action == 'LINEPROPAL_UPDATE') {
             dol_syslog(
                 "Trigger '" . $this->name . "' for action '$action' launched by " . __FILE__ . ". id=" . $object->id
             );
+			return $this->createCustomRef($object);
         } elseif ($action == 'LINEPROPAL_DELETE') {
             dol_syslog(
                 "Trigger '" . $this->name . "' for action '$action' launched by " . __FILE__ . ". id=" . $object->id
             );
+			return $this->deleteCustomRef($object);
         }
 
         // Contracts
@@ -419,10 +422,16 @@ class InterfaceProductByCompanytrigger
                 "Trigger '" . $this->name . "' for action '$action' launched by " . __FILE__ . ". id=" . $object->id
             );
 			return $this->createCustomRef($object);
+        } elseif ($action == 'LINEBILL_UPDATE') {
+            dol_syslog(
+                "Trigger '" . $this->name . "' for action '$action' launched by " . __FILE__ . ". id=" . $object->id
+            );
+			return $this->createCustomRef($object);
         } elseif ($action == 'LINEBILL_DELETE') {
             dol_syslog(
                 "Trigger '" . $this->name . "' for action '$action' launched by " . __FILE__ . ". id=" . $object->id
             );
+            return $this->deleteCustomRef($object);
         }
 
         // Payments
@@ -648,24 +657,25 @@ class InterfaceProductByCompanytrigger
 			$parent_pbc 	= new ProductByCompany($db);
 			$pbc_det 		= new ProductByCompanyDet($db);
 
-			if ($selected !== 'none' && empty($customRef))
+			if ($selected != 'none' && empty($customRef))
 			{
 				setEventMessage($langs->trans('RefIsAMandatoryField'), 'errors');
 				return -1;
 			}
 
-			if ($selected !== 'none')
+			if ($selected != 'none')
 			{
 				if ($selected == $customRowid)
 				{
 					$pbc_det->setValues($data);
 					$ret = $pbc_det->save($user);
 				}
-				else // customisation de l'existant ou création
+
+				if ($selected == "custom") // customisation de l'existant ou création
 				{
 					if (empty($customRowid)) // création du pbc et du pbc ligne
 					{
-						if (empty($customDetRowid))
+						if (empty($customDetRowid)) // ne devrait pas arriver vu qu'on crée une ref custom quoiqu'il arrive
 						{
 							$parent_pbc->setValues($data);
 							$parent_pbc->save($user);
@@ -675,6 +685,13 @@ class InterfaceProductByCompanytrigger
 						}
 						else // en edition customDetRowid est envoyé
 						{
+							if ($majCustomRef) // mise à jour des valeurs existantes
+							{
+								$parent_pbc->setValues($data);
+								$parent_pbc->id = $parent_pbc->alreadyExists();
+								$parent_pbc->save($user);
+							}
+
 							$pbc_det->id = $customDetRowid;
 							$pbc_det->setValues($data);
 							$pbc_det->save($user);
@@ -696,14 +713,34 @@ class InterfaceProductByCompanytrigger
 			}
 			else // pas de customisation
 			{
-				$pbc_det->fk_origin = $object->id;
-				$pbc_det->origin_type = $object->element;
+				require_once DOL_DOCUMENT_ROOT.'/product/class/product.class.php';
 
-				$exists = $pbc_det->alreadyExists();
-				var_dump($pbc_det); exit;
+				$prod = new Product($db);
+				$prod->fetch($object->fk_product);
+
+				$data['ref'] = $prod->ref;
+				$data['label'] = $prod->label;
+
+				$pbc_det->setValues($data);
+				$pbc_det->id = $pbc_det->alreadyExists();
+				$pbc_det->save($user);
 			}
 		}
 		return 0;
 
+	}
+
+	public function deleteCustomRef(&$object)
+	{
+		global $db, $user;
+
+		dol_include_once('/productbycompany/class/productbycompany.class.php');
+		$pbc_det= new ProductByCompanyDet($db);
+
+		$pbc_det->fk_origin = $object->id;
+		$pbc_det->origin_type = $object->element;
+
+		$pbc_det->id = $pbc_det->alreadyExists();
+		$pbc_det->delete($user);
 	}
 }

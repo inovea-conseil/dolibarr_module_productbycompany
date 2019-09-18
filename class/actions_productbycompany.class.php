@@ -176,29 +176,35 @@ class ActionsProductByCompany
 
 	public function pdf_writelinedesc($parameters, &$object, &$action, $hookmanager)
 	{
+		global $db;
+
 		$TContext = explode(':', $parameters['context']);
 
-		if (in_array('pdfgeneration', $TContext) && $object->element == 'propal')
+		if (in_array('pdfgeneration', $TContext) && ($object->element == 'propal' || $object->element == 'commande' || $object->element == 'facture'))
 		{
-			/*foreach($parameters as $key => $value) {
+			foreach($parameters as $key => $value) {
 				$$key = $value;
 			}
 
-			$desc = pdf_getlinedesc($object, $i, $outputlangs, $hideref, $hidedesc, $issupplierline);
-			$prodser = new Product($db);
-			if (!empty($object->lines[$i]->fk_product)) $prodser->fetch($object->lines[$i]->fk_product);
+			dol_include_once('/productbycompany/class/productbycompany.class.php');
+			$pbc_det = new ProductByCompanyDet($db);
+			$pbc_det->origin_type = $object->lines[$i]->element;
+			$pbc_det->fk_origin = $object->lines[$i]->id;
 
-			if(! empty($prodser->multilangs['fr_FR']["description"]) && !empty($prodser->multilangs[$outputlangs->defaultlang]["description"]) && strpos($desc, $prodser->multilangs['fr_FR']["description"]) !== false)
+			$existing = $pbc_det->alreadyExists();
+			if ($existing > 0)
 			{
-				$desc = str_replace($prodser->multilangs['fr_FR']["description"], $prodser->multilangs[$outputlangs->defaultlang]["description"], $desc);
-				$desc = str_replace(htmlentities('Nomenclature douanière / Code SH'), '('.$outputlangs->trans('CustomCode'), $desc);
+				$pbc_det->fetch($existing);
+				$object->lines[$i]->label = $pbc_det->label;
+				$object->lines[$i]->fk_product = 0;
+				$desc = $pbc_det->ref.' - '.pdf_getlinedesc($object, $i, $outputlangs, $hideref, $hidedesc, $issupplierline);
+//				var_dump($desc, $pbc_det->ref, pdf_getlinedesc($object, $i, $outputlangs, $hideref, $hidedesc, $issupplierline)); exit;
+
+				$pdf->writeHTMLCell($w, $h, $posx, $posy, $outputlangs->convToOutputCharset($desc), 0, 1, false, true, 'J',true);
+
+				$this->resprints = $desc;
+				return 1;
 			}
-
-			$pdf->writeHTMLCell($w, $h, $posx, $posy, $outputlangs->convToOutputCharset($desc), 0, 1, false, true, 'J',true);
-
-			$this->resprints = $desc;
-			var_dump($parameters, $object); exit;
-			return 1;*/
 		}
 
 	}
