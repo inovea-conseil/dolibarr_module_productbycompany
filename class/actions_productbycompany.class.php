@@ -109,7 +109,10 @@ class ActionsProductByCompany
 		)
 		{
 			?>
-			<span id="js_customref"></span>
+			<fieldset id="js_fieldset">
+				<legend><?php echo $langs->trans('CustomRef'); ?></legend>
+				<div id="js_customref"></div>
+			</fieldset>
 			<script type="text/javascript">
 
                 // afficher les champs ref et label + "checkbox mise à jour existant"
@@ -122,6 +125,7 @@ class ActionsProductByCompany
 							get: 'getCustomRefEditFields'
 							,id: '<?php echo $parameters['line']->id; ?>'
 							,element_type: '<?php echo $parameters['line']->element; ?>'
+							,fk_product: '<?php echo $parameters['line']->fk_product; ?>'
 						}
 						,method:"get"
 					}).done(function(html){
@@ -151,14 +155,21 @@ class ActionsProductByCompany
 		)
 		{
 			?>
-			<span id="js_customref"></span>
+			<a class="button" id="btnCustomRef" style="display: none;">+ <?php echo $langs->trans('Customize'); ?></a>
+			<fieldset id="js_fieldset" style="display: none;">
+				<legend><?php echo $langs->trans('CustomRef'); ?></legend>
+				<div id="js_customref"></div>
+			</fieldset>
 			<script type="text/javascript">
 
 			// afficher les champs ref et label + "checkbox mise à jour existant"
 
             $(document).ready(function(){
-                console.log('chu la');
+
                 $('#idprod').on('change', function(e){
+                    $('#btnCustomRef').show();
+                    $('#js_fieldset').hide();
+
                     $.ajax({
                         url : "<?php echo dol_buildpath('/productbycompany/script/interface.php',1) ?>"
                         ,data:{
@@ -171,6 +182,18 @@ class ActionsProductByCompany
                         $("#js_customref").html(html);
                     });
                 });
+
+                $('#btnCustomRef').on('click', function (e) {
+                    e.preventDefault();
+                    if($('#js_fieldset').is(':visible')) {
+                        $('#js_fieldset').hide();
+                        $("#customRefSelect").click()
+                    }
+                    else {
+                        $('#js_fieldset').show();
+                        $("#customRefSelect").click()
+					}
+				})
             });
 			</script>
 
@@ -192,7 +215,11 @@ class ActionsProductByCompany
 		)
 		{
 			?>
-			<span id="js_customref"></span>
+			<a class="button" id="btnCustomRef" style="display: none;">+ <?php echo $langs->trans('Customize'); ?></a>
+			<fieldset id="js_fieldset" style="display: none;">
+				<legend>Personnalisation</legend>
+				<div id="js_customref"></div>
+			</fieldset>
 			<script type="text/javascript">
 
                 // afficher les champs ref et label + "checkbox mise à jour existant"
@@ -201,6 +228,10 @@ class ActionsProductByCompany
                     console.log('chu la');
 
                     $('#idprodfournprice').on('change', function(e){
+
+                        $('#btnCustomRef').show();
+                        $('#js_fieldset').hide();
+
                         $.ajax({
                             url : "<?php echo dol_buildpath('/productbycompany/script/interface.php',1) ?>"
                             ,data:{
@@ -213,6 +244,18 @@ class ActionsProductByCompany
                             $("#js_customref").html(html);
                         });
                     });
+
+                    $('#btnCustomRef').on('click', function (e) {
+                        e.preventDefault();
+                        if($('#js_fieldset').is(':visible')) {
+                            $('#js_fieldset').hide();
+                            $("#customRefSelect").click()
+                        }
+                        else {
+                            $('#js_fieldset').show();
+                            $("#customRefSelect").click()
+                        }
+                    })
                 });
 			</script>
 

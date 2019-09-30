@@ -13,6 +13,7 @@ AbricotNeedUpdate=Le module abricot doit être mis à jour
 ParamLabel=Nom du paramètre
 ParamDesc=Une description si besoin
 ParamHelp=Le contenu de l'aide
+PBC_DONT_PRESELECT_CUSTOM_REF=Ne pas présélectionner par défaut la référence personnalisé
 
 # TAB
 TabProductByCompanyFromProduct=Réf./libellé par client
@@ -47,5 +48,7 @@ DateCre=Date de création
 RecordAlreadyExists=Une référence personnalisée existe déjà pour ce produit pour ce tiers
 RefIsRequired=Le champ "Ref" est requis
 CustomRef=Produit personnalisé
+CreateCustomRef=Créer la référence personnalisée
 majCustomRef=Mettre à jour la référence existante
 RefIsAMandatoryField=Le champs Ref ne peut être vide
+Customize=Personnaliser

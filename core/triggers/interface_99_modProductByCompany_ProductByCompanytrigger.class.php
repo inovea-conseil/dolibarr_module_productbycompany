@@ -666,131 +666,99 @@ class InterfaceProductByCompanytrigger
 		$customRowid	= GETPOST('customRowid');
 		$customDetRowid = GETPOST('customDetRowid');
 
-		if (! empty($selected))
+		// récupération du fk_soc
+		$parentTable = '';
+		switch ($object->element)
 		{
-			// récupération du fk_soc
-			$parentTable = '';
-			switch ($object->element)
-			{
-				case 'commandedet':
-					$parentTable = 'commande';
-					$fk="fk_".$parentTable;
-					break;
-				case 'facturedet':
-					$parentTable = 'facture';
-					$fk="fk_".$parentTable;
-					break;
-				case 'propaldet':
-					$parentTable = 'propal';
-					$fk="fk_".$parentTable;
-					break;
-				case 'commande_fournisseurdet':
-					$parentTable = 'commande_fournisseur';
-					$fk='fk_commande';
-					break;
-				case 'facture_fourn_det':
-					$parentTable = 'facture_fourn';
-					$fk='fk_facture_fourn';
-					break;
-				case 'supplier_proposaldet':
-					$parentTable = 'supplier_proposal';
-					$fk='fk_supplier_proposal';
-					break;
-				default :
-					return 0;
-			}
-
-			$sql = "SELECT fk_soc FROM ".MAIN_DB_PREFIX.$parentTable;
-			$sql.= " WHERE rowid = ".$object->{$fk};
-			$resql = $db->query($sql);
-			if ($resql)
-			{
-				$obj = $db->fetch_object($resql);
-				$fk_soc = $obj->fk_soc;
-			}
-
-			$data = array(
-				'fk_soc' 		=> $fk_soc
-				,'fk_product' 	=> $object->fk_product
-				,'ref' 			=> $customRef
-				,'label' 		=> $customLabel
-				,'fk_origin' 	=> $object->id
-				,'origin_type' 	=> $object->element
-			);
-
-			dol_include_once('/productbycompany/class/productbycompany.class.php');
-			$parent_pbc 	= new ProductByCompany($db);
-			$pbc_det 		= new ProductByCompanyDet($db);
-
-			if ($selected != 'none' && empty($customRef))
-			{
-				setEventMessage($langs->trans('RefIsAMandatoryField'), 'errors');
-				return -1;
-			}
-
-			if ($selected != 'none')
-			{
-				if ($selected == $customRowid)
-				{
-					$pbc_det->setValues($data);
-					$ret = $pbc_det->save($user);
-				}
-
-				if ($selected == "custom") // customisation de l'existant ou création
-				{
-					if (empty($customRowid)) // création du pbc et du pbc ligne
-					{
-						if (empty($customDetRowid)) // ne devrait pas arriver vu qu'on crée une ref custom quoiqu'il arrive
-						{
-							$parent_pbc->setValues($data);
-							$parent_pbc->save($user);
-
-							$pbc_det->setValues($data);
-							$pbc_det->save($user);
-						}
-						else // en edition customDetRowid est envoyé
-						{
-							if ($majCustomRef) // mise à jour des valeurs existantes
-							{
-								$parent_pbc->setValues($data);
-								$parent_pbc->id = $parent_pbc->alreadyExists();
-								$parent_pbc->save($user);
-							}
-
-							$pbc_det->id = $customDetRowid;
-							$pbc_det->setValues($data);
-							$pbc_det->save($user);
-						}
-					}
-					else
-					{
-						if ($majCustomRef) // mise à jour des valeurs existantes
-						{
-							$parent_pbc->fetch($customRowid);
-							$parent_pbc->setValues($data);
-							$parent_pbc->save($user);
-						}
-
-						$pbc_det->setValues($data);
-						$pbc_det->save($user);
-					}
-				}
-			}
-			else // pas de customisation
-			{
-				require_once DOL_DOCUMENT_ROOT.'/product/class/product.class.php';
-
-				$prod = new Product($db);
-				$prod->fetch($object->fk_product);
-
-				$data['ref'] = $prod->ref;
-				$data['label'] = $prod->label;
-
-				$pbc_det->setValues($data);
-				$pbc_det->id = $pbc_det->alreadyExists();
-				$pbc_det->save($user);
-			}
+			case 'commandedet':
+				$parentTable = 'commande';
+				$fk="fk_".$parentTable;
+				break;
+			case 'facturedet':
+				$parentTable = 'facture';
+				$fk="fk_".$parentTable;
+				break;
+			case 'propaldet':
+				$parentTable = 'propal';
+				$fk="fk_".$parentTable;
+				break;
+			case 'commande_fournisseurdet':
+				$parentTable = 'commande_fournisseur';
+				$fk='fk_commande';
+				break;
+			case 'facture_fourn_det':
+				$parentTable = 'facture_fourn';
+				$fk='fk_facture_fourn';
+				break;
+			case 'supplier_proposaldet':
+				$parentTable = 'supplier_proposal';
+				$fk='fk_supplier_proposal';
+				break;
+			default :
+				return 0;
 		}
+
+		$sql = "SELECT fk_soc FROM ".MAIN_DB_PREFIX.$parentTable;
+		$sql.= " WHERE rowid = ".$object->{$fk};
+		$resql = $db->query($sql);
+		if ($resql)
+		{
+			$obj = $db->fetch_object($resql);
+			$fk_soc = $obj->fk_soc;
+		}
+
+		$data = array(
+			'fk_soc' 		=> $fk_soc
+			,'fk_product' 	=> $object->fk_product
+			,'ref' 			=> $customRef
+			,'label' 		=> $customLabel
+			,'fk_origin' 	=> $object->id
+			,'origin_type' 	=> $object->element
+		);
+
+		dol_include_once('/productbycompany/class/productbycompany.class.php');
+		$parent_pbc 	= new ProductByCompany($db);
+		$pbc_det 		= new ProductByCompanyDet($db);
+
+		if (empty($selected))
+		{
+			require_once DOL_DOCUMENT_ROOT.'/product/class/product.class.php';
+
+			$prod = new Product($db);
+			$prod->fetch($object->fk_product);
+
+			$data['ref'] = $prod->ref;
+			$data['label'] = $prod->label;
+
+			$pbc_det->setValues($data);
+			$pbc_det->id = $pbc_det->alreadyExists();
+			$pbc_det->save($user);
+		}
+		else
+		{
+			if ($majCustomRef)
+			{
+				$parent_pbc->setValues($data);
+				$parent_pbc->id = $parent_pbc->alreadyExists();
+				$parent_pbc->save($user);
+			}
+
+			$pbc_det->setValues($data);
+			$pbc_det->id = $pbc_det->alreadyExists();
+			$pbc_det->save($user);
+		}
+/*		var_dump(
+			array(
+				'selected' => $selected,
+				'customRowid' => $customRowid,
+				'customDetRowid' => $customDetRowid,
+				'customref' => $customRef,
+				'majCustomRef' => $majCustomRef,
+				'data' => $data
+			)
+		);
+		exit;*/
+
 		return 0;
 
 	}

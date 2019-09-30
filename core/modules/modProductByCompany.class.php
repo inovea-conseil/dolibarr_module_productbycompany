@@ -106,7 +106,7 @@ class modProductByCompany extends DolibarrModules
 		$this->dirs = array();
 
 		// Config pages. Put here list of php page, stored into productbycompany/admin directory, to use to setup module.
-		$this->config_page_url = array("productbycompany_about.php@productbycompany");
+		$this->config_page_url = array("productbycompany_setup.php@productbycompany");
 
 		// Dependencies
 		$this->hidden = false;			// A condition to hide module
