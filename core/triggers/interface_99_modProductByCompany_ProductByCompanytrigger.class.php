@@ -276,7 +276,7 @@ class InterfaceProductByCompanytrigger
             dol_syslog(
                 "Trigger '" . $this->name . "' for action '$action' launched by " . __FILE__ . ". id=" . $object->id
             );
-            return $this->createCustomRef($object);
+            return $this->createCustomRef($object, 'edit');
         } elseif ($action == 'LINEORDER_DELETE') {
             dol_syslog(
                 "Trigger '" . $this->name . "' for action '$action' launched by " . __FILE__ . ". id=" . $object->id
@@ -310,7 +310,7 @@ class InterfaceProductByCompanytrigger
             dol_syslog(
                 "Trigger '" . $this->name . "' for action '$action' launched by " . __FILE__ . ". id=" . $object->id
             );
-            return $this->createCustomRef($object);
+            return $this->createCustomRef($object, 'edit');
         } elseif ($action == 'LINEORDER_SUPPLIER_DELETE') {
             dol_syslog(
                 "Trigger '" . $this->name . "' for action '$action' launched by " . __FILE__ . ". id=" . $object->id
@@ -364,7 +364,7 @@ class InterfaceProductByCompanytrigger
             dol_syslog(
                 "Trigger '" . $this->name . "' for action '$action' launched by " . __FILE__ . ". id=" . $object->id
             );
-			return $this->createCustomRef($object);
+			return $this->createCustomRef($object, 'edit');
         } elseif ($action == 'LINEPROPAL_DELETE') {
             dol_syslog(
                 "Trigger '" . $this->name . "' for action '$action' launched by " . __FILE__ . ". id=" . $object->id
@@ -441,7 +441,7 @@ class InterfaceProductByCompanytrigger
             dol_syslog(
                 "Trigger '" . $this->name . "' for action '$action' launched by " . __FILE__ . ". id=" . $object->id
             );
-			return $this->createCustomRef($object);
+			return $this->createCustomRef($object, 'edit');
         } elseif ($action == 'LINEBILL_DELETE') {
             dol_syslog(
                 "Trigger '" . $this->name . "' for action '$action' launched by " . __FILE__ . ". id=" . $object->id
@@ -626,7 +626,7 @@ class InterfaceProductByCompanytrigger
 			dol_syslog(
 				"Trigger '" . $this->name . "' for action '$action' launched by " . __FILE__ . ". id=" . $object->id
 			);
-			return $this->createCustomRef($object);
+			return $this->createCustomRef($object, 'edit');
 		} elseif ($action == 'LINEBILL_SUPPLIER_DELETE') {
 			dol_syslog(
 				"Trigger '" . $this->name . "' for action '$action' launched by " . __FILE__ . ". id=" . $object->id
@@ -643,7 +643,7 @@ class InterfaceProductByCompanytrigger
 			dol_syslog(
 				"Trigger '" . $this->name . "' for action '$action' launched by " . __FILE__ . ". id=" . $object->id
 			);
-			return $this->createCustomRef($object);
+			return $this->createCustomRef($object, 'edit');
 		} elseif ($action == 'LINESUPPLIER_PROPOSAL_DELETE') {
 			dol_syslog(
 				"Trigger '" . $this->name . "' for action '$action' launched by " . __FILE__ . ". id=" . $object->id
@@ -654,7 +654,7 @@ class InterfaceProductByCompanytrigger
         return 0;
     }
 
-    public function createCustomRef(&$object)
+    public function createCustomRef(&$object, $mode = 'create')
 	{
 		global $langs, $db, $user;
 		$langs->load('productbycompany@productbycompany');
@@ -722,17 +722,15 @@ class InterfaceProductByCompanytrigger
 
 		if (empty($selected))
 		{
-			require_once DOL_DOCUMENT_ROOT.'/product/class/product.class.php';
-
-			$prod = new Product($db);
-			$prod->fetch($object->fk_product);
-
-			$data['ref'] = $prod->ref;
-			$data['label'] = $prod->label;
-
-			$pbc_det->setValues($data);
-			$pbc_det->id = $pbc_det->alreadyExists();
-			$pbc_det->save($user);
+			if ($mode == "edit")
+			{
+				$pbc_det->setValues($data);
+				$pbc_det->id = $pbc_det->alreadyExists();
+				if ($pbc_det->id > 0)
+				{
+					$pbc_det->delete($user);
+				}
+			}
 		}
 		else
 		{

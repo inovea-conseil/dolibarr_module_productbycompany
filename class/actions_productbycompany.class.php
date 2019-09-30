@@ -109,7 +109,8 @@ class ActionsProductByCompany
 		)
 		{
 			?>
-			<fieldset id="js_fieldset">
+			<a class="button" id="btnCustomRef">+ <?php echo $langs->trans('Customize'); ?></a>
+			<fieldset id="js_fieldset" style="display: none; ">
 				<legend><?php echo $langs->trans('CustomRef'); ?></legend>
 				<div id="js_customref"></div>
 			</fieldset>
@@ -132,6 +133,19 @@ class ActionsProductByCompany
 						$("#js_customref").html(html);
 					});
 
+                    $('#btnCustomRef').on('click', function (e) {
+                        e.preventDefault();
+                        if($('#js_fieldset').is(':visible')) {
+                            $('#js_fieldset').hide();
+                            $("#customRefSelect").click();
+                            $(this).html("+ <?php echo $langs->trans('Customize'); ?>");
+                        }
+                        else {
+                            $('#js_fieldset').show();
+                            $("#customRefSelect").click();
+                            $(this).html("- <?php echo $langs->trans('Customize'); ?>");
+                        }
+                    })
                 });
 			</script>
 

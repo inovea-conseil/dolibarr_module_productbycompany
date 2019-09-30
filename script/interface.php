@@ -61,6 +61,7 @@ function getCustomRefCreateFields($id_prod, $fk_soc)
 	{
 		$out.='<script type="text/javascript">
 			$("#js_fieldset").show();
+			$("#btnCustomRef").html("- '.$langs->trans('Customize').'");
 //			$("#customRefSelect").click();
 		</script>';
 	}
@@ -107,9 +108,16 @@ function getCustomRefEditFields($id, $element_type,$fk_product)
 	$out.= '<p>'.$langs->trans('Label');
 	$out.= '<input type="text" name="customLabel" id="customLabel" value="'.$customRef->label.'" ></p>';
 
-
 	$out.= '<p><label for="majCustomRef" id="customCB" ><input type="checkbox" name="majCustomRef" id="majCustomRef"> '.$langs->trans('majCustomRef').'</label></p>';
 
+	if (!empty($exists))
+	{
+		$out.='<script type="text/javascript">
+			$("#js_fieldset").show();
+			$("#btnCustomRef").html("- '.$langs->trans('Customize').'");
+//			$("#customRefSelect").click();
+		</script>';
+	}
 
 	return $out;
 }
