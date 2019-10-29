@@ -39,10 +39,10 @@ ProductByCompanyCancel=Abandonner
 ProductByCompanyDelete=Supprimer
 
 ConfirmValidateProductByCompanyTitle=Confirmation d'activation
-ConfirmValidateProductByCompanyBody=Souhaitez-vous vraiment activer cette fiche ProductByCompany %s ?
+ConfirmValidateProductByCompanyBody=Souhaitez-vous vraiment activer cette référence personnalisée %s ?
 
 ConfirmDeleteProductByCompanyTitle=Confirmation de suppression
-ConfirmDeleteProductByCompanyBody=Souhaitez-vous vraiment supprimer cette fiche ProductByCompany %s ?
+ConfirmDeleteProductByCompanyBody=Souhaitez-vous vraiment supprimer cette référence personnalisée %s ?
 
 DateCre=Date de création
 RecordAlreadyExists=Une référence personnalisée existe déjà pour ce produit pour ce tiers

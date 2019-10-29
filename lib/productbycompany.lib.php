@@ -122,6 +122,11 @@ function getFormConfirmProductByCompany($form, $object, $action)
         $body = $langs->trans('ConfirmDeleteProductByCompanyBody');
         $formconfirm = $form->formconfirm($_SERVER['PHP_SELF'] . '?origin_id='.$object->origin_id.'&type='.$object->origin_type.'&id=' . $object->id, $langs->trans('ConfirmDeleteProductByCompanyTitle'), $body, 'confirm_delete', '', 0, 1);
     }
+    elseif ($action === 'delete_ref' && !empty($user->rights->productbycompany->write))
+    {
+        $body = $langs->trans('ConfirmDeleteProductByCompanyBody');
+        $formconfirm = $form->formconfirm($_SERVER['PHP_SELF'] . '?id='.$object->origin_id.'&type='.$object->origin_type.'&ref_id=' . $object->id, $langs->trans('ConfirmDeleteProductByCompanyTitle'), $body, 'confirm_delete', '', 0, 1);
+    }
     elseif ($action === 'clone' && !empty($user->rights->productbycompany->write))
     {
         $body = $langs->trans('ConfirmCloneProductByCompanyBody', $object->ref);

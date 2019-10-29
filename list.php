@@ -19,6 +19,7 @@ require 'config.php';
 dol_include_once('productbycompany/class/productbycompany.class.php');
 dol_include_once('productbycompany/lib/productbycompany.lib.php');
 require_once DOL_DOCUMENT_ROOT.'/core/lib/functions.lib.php';
+require_once DOL_DOCUMENT_ROOT.'/core/class/html.form.class.php';
 
 if(empty($user->rights->productbycompany->read)) accessforbidden();
 
@@ -28,12 +29,21 @@ $langs->load('productbycompany@productbycompany');
 $productbycompany = new ProductByCompany($db);
 
 $massaction = GETPOST('massaction', 'alpha');
+$action = GETPOST('action', 'alpha');
+$confirm = GETPOST('confirm');
 $confirmmassaction = GETPOST('confirmmassaction', 'alpha');
 $toselect = GETPOST('toselect', 'array');
 
 $id = GETPOST('id');
 $type = GETPOST('type');
 $ref = GETPOST('ref');
+$ref_id = GETPOST('ref_id');
+
+if (!empty($ref_id)) {
+	$productbycompany->fetch($ref_id);
+	$productbycompany->origin_id = $id;
+	$productbycompany->origin_type = $type;
+}
 
 if ($type === 'product')
 {
@@ -102,6 +112,13 @@ if (empty($reshook))
 	$permtodelete = $user->rights->productbycompany->delete;
 	$uploaddir = $conf->productbycompany->dir_output;
 	include DOL_DOCUMENT_ROOT.'/core/actions_massactions.inc.php';
+
+	if ($action == "confirm_delete" && $confirm == 'yes')
+	{
+		$ret = $productbycompany->delete($user);
+		header("Location: ".$_SERVER['PHP_SELF'].'?id='.$id.'&type='.$type);
+		exit;
+	}
 }
 
 
@@ -151,6 +168,12 @@ $sql.=$hookmanager->resPrint;
 
 
 dol_fiche_head($head, 'productbycompanytab', $title, -1, $picto);
+
+$form = new Form($db);
+
+$formconfirm = getFormConfirmProductByCompany($form, $productbycompany, $action);
+if (!empty($formconfirm)) print $formconfirm;
+
 $paramid = $type == 'product' ? 'ref' : 'id';
 $fieldid = $type == 'product' ? 'ref' : 'rowid';
 
@@ -189,21 +212,21 @@ $TSearch = array(
 if ($type == 'company')
 {
 	$TTitles = array(
-		'fk_productbycompany' => $langs->trans('ID.')
-		,'fk_product' => $langs->trans('Product')
+		'fk_product' => $langs->trans('Product')
 		,'ref' => $langs->trans('Ref.')
 		,'label' => $langs->trans('Label')
 		,'date_creation' => $langs->trans('DateCre')
+		,'fk_productbycompany' => ''
 	);
 }
 else
 {
 	$TTitles = array(
-		'fk_productbycompany' => $langs->trans('ID.')
-		,'fk_soc' => $langs->trans('Customer')
+		'fk_soc' => $langs->trans('Customer')
 		,'ref' => $langs->trans('Ref.')
 		,'label' => $langs->trans('Label')
 		,'date_creation' => $langs->trans('DateCre')
+		,'fk_productbycompany' => ''
 	);
 }
 
@@ -232,7 +255,7 @@ echo $r->render($sql, array(
     )
 	,'subQuery' => array()
 	,'link' => array(
-	    'fk_productbycompany' => '<a href="'.dol_buildpath('productbycompany/card.php', 1).'?origin_id='.$object->id.'&type='.$type.'&id=@val@&action=edit'.$fk.$backtopage.'">@val@</a>'
+	    'fk_productbycompany' => '<a href="'.dol_buildpath('productbycompany/card.php', 1).'?origin_id='.$object->id.'&type='.$type.'&id=@val@&action=edit'.$fk.$backtopage.'">'.img_edit().'</i></a><a href="'.$_SERVER['PHP_SELF'].'?id='.$object->id.'&type='.$type.'&action=delete_ref&ref_id=@val@">'.img_delete().'</a>'
     )
 	,'type' => array(
 		'date_creation' => 'date' // [datetime], [hour], [money], [number], [integer]
