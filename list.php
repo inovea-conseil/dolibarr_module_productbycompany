@@ -269,6 +269,7 @@ echo $r->render($sql, array(
 	)
 	,'title'=>$TTitles
 	,'eval'=>$TEval
+	,'position' => array('text-align' => array('fk_productbycompany' => 'right'))
 ));
 
 $parameters=array('sql'=>$sql);
