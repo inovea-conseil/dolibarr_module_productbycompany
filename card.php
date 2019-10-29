@@ -29,6 +29,7 @@ $langs->load('productbycompany@productbycompany');
 $object = new ProductByCompany($db);
 
 $action = GETPOST('action');
+$cancel = GETPOST('cancel');
 $origin_id = GETPOST('origin_id');
 $type = GETPOST('type');
 $id = GETPOST('id');
@@ -107,7 +108,7 @@ if ($reshook < 0) setEventMessages($hookmanager->error, $hookmanager->errors, 'e
 // Si vide alors le comportement n'est pas remplacé
 if (empty($reshook))
 {
-
+//var_dump($cancel, $backtopage);
     if ($cancel)
     {
         if (! empty($backtopage))
@@ -216,11 +217,19 @@ if (empty($reshook))
  */
 $form = new Form($db);
 
-$title=$langs->trans('ProductByCompany');
+//$title=$langs->trans('ProductByCompany');
 llxHeader('', $title);
 
 if ($action == 'create')
 {
+	$picto = $type === 'product' ? 'product' : 'company';
+	dol_fiche_head($head, 'productbycompanytab', ($type === 'product' ? $langs->trans('Product') : $langs->trans('ThirdParty')), 0, $picto);
+
+	$paramid = $type == 'product' ? 'ref' : 'origin_id';
+	$fieldid = $type == 'product' ? 'ref' : 'rowid';
+
+	dol_banner_tab($origin_object, $paramid, '', 0, $fieldid, 'ref', '', '&type='.$type);
+	print '<div class="underbanner clearboth"></div>';
 
     print load_fiche_titre($langs->trans('NewProductByCompany'), '', 'productbycompany@productbycompany');
 
@@ -230,8 +239,6 @@ if ($action == 'create')
     print '<input type="hidden" name="origin_id" value="'.$origin_id.'">';
     print '<input type="hidden" name="type" value="'.$type.'">';
     print '<input type="hidden" name="backtopage" value="'.$backtopage.'">';
-
-    dol_fiche_head(array(), '');
 
     print '<table class="border centpercent">'."\n";
 
@@ -253,28 +260,8 @@ if ($action == 'create')
 
     print '</form>';
 
-	// cacher les champs inutiles
-	$trtohide = '';
-    if ($type == 'company' && !empty($fk_soc))
-    {
-    	$trtohide = '#field_fk_soc';
-	}
-    else if ($type == 'product' && !empty($fk_product))
-    {
-		$trtohide = '#field_fk_product';
-	}
+	hideUselessFields($type, $fk_product, $fk_soc, $origin_object);
 
-    if (!empty($trtohide))
-	{
-		?>
-		<script type="text/javascript">
-            $(document).ready(function(){
-                var trtohide = '<?php echo $trtohide; ?>';
-                $(trtohide).hide();
-            });
-		</script>
-		<?php
-	}
 }
 else
 {
@@ -299,8 +286,14 @@ else
             if ($type == 'product') $head = product_prepare_head($origin_object);
             else $head = societe_prepare_head($origin_object);
 
-            $picto = 'productbycompany@productbycompany';
-            dol_fiche_head($head, 'productbycompanytab', $langs->trans('ProductByCompany'), 0, $picto);
+            $picto = $type === 'product' ? 'product' : 'company';
+            dol_fiche_head($head, 'productbycompanytab', ($type === 'product' ? $langs->trans('Product') : $langs->trans('ThirdParty')), 0, $picto);
+
+			$paramid = $type == 'product' ? 'ref' : 'origin_id';
+			$fieldid = $type == 'product' ? 'ref' : 'rowid';
+
+			dol_banner_tab($origin_object, $paramid, '', 0, $fieldid, 'ref', '', '&type='.$type);
+			print '<div class="underbanner clearboth"></div>';
 
             print '<table class="border centpercent">'."\n";
 
@@ -319,6 +312,9 @@ else
             print '</div>';
 
             print '</form>';
+
+			hideUselessFields($type, $fk_product, $fk_soc, $origin_object);
+
         }
         elseif ($origin_object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'create')))
         {
@@ -423,6 +419,43 @@ else
     }
 }
 
+function hideUselessFields($type, $fk_product, $fk_soc, $origin_object)
+{
+
+	// cacher les champs inutiles
+	$trtochange = '';
+	if ($type == 'company' && !empty($fk_soc))
+	{
+		$trtochange = '#field_fk_soc';
+		$input = '#fk_soc';
+	}
+	else if ($type == 'product' && !empty($fk_product))
+	{
+		$trtochange = '#field_fk_product';
+		$input = '#fk_product';
+	}
+
+	if (!empty($trtochange))
+	{
+		$nomUrl = $origin_object->getNomUrl(1);
+		?>
+		<script type="text/javascript">
+            $(document).ready(function(){
+                var trtochange = '<?php echo $trtochange; ?>';
+                var input = '<?php echo $input; ?>';
+
+                // create
+                $(trtochange).children(':last-child').find('.select2').hide();
+                $(trtochange).children(':last-child').append($('<?php echo $nomUrl; ?>'));
+
+                // edit
+				$(input).next().hide();
+				$(input).parent().append($('<?php echo $nomUrl; ?>'));
+            });
+		</script>
+		<?php
+	}
+}
 
 llxFooter();
 $db->close();

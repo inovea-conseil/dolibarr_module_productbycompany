@@ -155,7 +155,7 @@ $paramid = $type == 'product' ? 'ref' : 'id';
 $fieldid = $type == 'product' ? 'ref' : 'rowid';
 
 dol_banner_tab($object, $paramid, '', ($user->socid?0:1), $fieldid, 'ref', '', '&type='.$type);
-
+print '<div class="underbanner clearboth"></div>';
 // PRINT LIST
 $newcardbutton = '';
 if ($user->rights->productbycompany->write)
@@ -207,6 +207,9 @@ else
 	);
 }
 
+$backtopage="&backtopage=".urlencode($_SERVER['PHP_SELF']."?id=".$object->id."&type=".$type);
+$fk = $type == 'product' ? '&fk_product='.$object->id : '&fk_soc='.$object->id;
+
 $r = new Listview($db, 'productbycompany');
 echo $r->render($sql, array(
 	'view_type' => 'list' // default = [list], [raw], [chart]
@@ -229,7 +232,7 @@ echo $r->render($sql, array(
     )
 	,'subQuery' => array()
 	,'link' => array(
-	    'fk_productbycompany' => '<a href="'.dol_buildpath('productbycompany/card.php', 1).'?origin_id='.$object->id.'&type='.$type.'&id=@val@&action=edit">@val@</a>'
+	    'fk_productbycompany' => '<a href="'.dol_buildpath('productbycompany/card.php', 1).'?origin_id='.$object->id.'&type='.$type.'&id=@val@&action=edit'.$fk.$backtopage.'">@val@</a>'
     )
 	,'type' => array(
 		'date_creation' => 'date' // [datetime], [hour], [money], [number], [integer]
