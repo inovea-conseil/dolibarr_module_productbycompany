@@ -96,7 +96,7 @@ function getCustomRefEditFields($id, $element_type,$fk_product)
 		$customRef->label = $customRef->product->label;
 	}
 
-	$out = '<br>';
+	$out = '';
 	// créer le selectarray avec rien/custom/la ref existante
 	if ($exists > 0) $checked = 'checked';
 	$out.= '<input type="checkbox" name="customRefSelect" id="customRefSelect" style="display: none;"'.$checked.'>';

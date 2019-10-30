@@ -110,11 +110,13 @@ class ActionsProductByCompany
 		{
 			?>
 			<a class="button" id="btnCustomRef">+ <?php echo $langs->trans('Customize'); ?></a>
+			<br /><br />
 			<fieldset id="js_fieldset" style="display: none; ">
 				<legend><?php echo $langs->trans('CustomRef'); ?></legend>
 				<div id="js_customref"></div>
 			</fieldset>
 			<script type="text/javascript">
+				while ($('#btnCustomRef').prev('br').length > 0) $('#btnCustomRef').prev('br').remove();
 
                 // afficher les champs ref et label + "checkbox mise à jour existant"
 
