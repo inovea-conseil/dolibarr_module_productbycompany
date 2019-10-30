@@ -196,6 +196,7 @@ class ActionsProductByCompany
                         ,method:"get"
                     }).done(function(html){
                         $("#js_customref").html(html);
+                        if (! $('#js_fieldset').is(':visible')) $('#btnCustomRef').html("+ <?php echo $langs->trans('Customize'); ?>")
                     });
                 });
 
