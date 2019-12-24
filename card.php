@@ -260,7 +260,7 @@ if ($action == 'create')
 
     print '</form>';
 
-	hideUselessFields($type, $fk_product, $fk_soc, $origin_object);
+	//hideUselessFields($type, $fk_product, $fk_soc, $origin_object);
 
 }
 else
@@ -313,7 +313,7 @@ else
 
             print '</form>';
 
-			hideUselessFields($type, $fk_product, $fk_soc, $origin_object);
+			//hideUselessFields($type, $fk_product, $fk_soc, $origin_object);
 
         }
         elseif ($origin_object->id > 0 && (empty($action) || ($action != 'edit' && $action != 'create')))
@@ -434,7 +434,7 @@ function hideUselessFields($type, $fk_product, $fk_soc, $origin_object)
 		$trtochange = '#field_fk_product';
 		$input = '#fk_product';
 	}
-
+ 
 	if (!empty($trtochange))
 	{
 		$nomUrl = $origin_object->getNomUrl(1);
