@@ -231,19 +231,27 @@ class ActionsProductByCompany
                 // afficher les champs ref et label + "checkbox mise à jour existant"
 
                 $(document).ready(function(){
-                    console.log('chu la');
 
                     $('#idprodfournprice').on('change', function(e){
 
                         $('#btnCustomRef').show();
                         $('#js_fieldset').hide();
 
+						var $val = $(this).val();
+						var isPrice = 1;
+
+						if (isNaN($val)){
+							$val = $(this).val().substr(7);
+							isPrice = 0;
+						}
+
                         $.ajax({
                             url : "<?php echo dol_buildpath('/productbycompany/script/interface.php',1) ?>"
                             ,data:{
                                 get: 'getCustomRefCreateFields'
-                                ,id_prod:$(this).val().substr(7)
+                                ,id_prod:$val
                                 ,fk_soc:<?php echo $object->socid; ?>
+                                ,isPrice: isPrice
                             }
                             ,method:"get"
                         }).done(function(html){

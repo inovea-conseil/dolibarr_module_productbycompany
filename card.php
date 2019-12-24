@@ -231,7 +231,7 @@ if ($action == 'create')
 	dol_banner_tab($origin_object, $paramid, '', 0, $fieldid, 'ref', '', '&type='.$type);
 	print '<div class="underbanner clearboth"></div>';
 
-    print load_fiche_titre($langs->trans('NewProductByCompany'), '', 'productbycompany@productbycompany');
+    print load_fiche_titre($langs->trans('NewProductByCompany'), '', 'title_generic.png');
 
     print '<form method="POST" action="'.$_SERVER["PHP_SELF"].'">';
     print '<input type="hidden" name="token" value="'.$_SESSION['newtoken'].'">';
@@ -434,7 +434,7 @@ function hideUselessFields($type, $fk_product, $fk_soc, $origin_object)
 		$trtochange = '#field_fk_product';
 		$input = '#fk_product';
 	}
- 
+
 	if (!empty($trtochange))
 	{
 		$nomUrl = $origin_object->getNomUrl(1);

@@ -8,18 +8,32 @@ $get = GETPOST('get');
 switch ($get)
 {
 	case 'getCustomRefCreateFields':
-		print getCustomRefCreateFields(GETPOST('id_prod'), GETPOST('fk_soc'));
+		print getCustomRefCreateFields(GETPOST('id_prod'), GETPOST('fk_soc'), (bool) GETPOST('isPrice'));
 	case 'getCustomRefEditFields':
 		print getCustomRefEditFields(GETPOST('id'), GETPOST('element_type'), GETPOST('fk_product'));
 }
 
-
-function getCustomRefCreateFields($id_prod, $fk_soc)
+/**
+ * @param int $id_prod 		ID de produit ou de prix fournisseur
+ * @param int $fk_soc  		ID du tiers associé
+ * @param bool $isPrice		booléen id_prod est-il un id de prix fournisseur ou pas
+ * @return string
+ */
+function getCustomRefCreateFields($id_prod, $fk_soc, $isPrice = false)
 {
 	global $db, $langs, $conf;
 
 	if (empty($id_prod)) return '';
 	$langs->load('productbycompany@productbycompany');
+
+	if ($isPrice)
+	{
+		require_once DOL_DOCUMENT_ROOT.'/fourn/class/fournisseur.product.class.php';
+		$pfp = new ProductFournisseur($db);
+		$pfp->fetch_product_fournisseur_price($id_prod);
+		if (!empty($pfp->id)) $id_prod = $pfp->id;
+
+	}
 
 	$form = new Form($db);
 

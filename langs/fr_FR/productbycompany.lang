@@ -24,12 +24,12 @@ TabProductByCompanyFromCompany=Réf./libellé par produit
 # LIST
 ProductByCompanyListFromProduct=Liste Réf./libellé par tiers
 ProductByCompanyListFromCompany=Liste Réf./libellé par produit
-AddNewProductByCompany=Créer une valeur personnalisée
+AddNewProductByCompany=Créer une Réf. personnalisée
 NoProductByCompany=(vide)
 
 # CARD
-NewProductByCompany=Création ProductByCompany
-ProductByCompanyCard=Fiche ProductByCompany
+NewProductByCompany=Création Réf./libellé personnalisée
+ProductByCompanyCard=Fiche Réf./libellé personnalisée
 
 ProductByCompanyModify=Modifier
 ProductByCompanyClone=Cloner
