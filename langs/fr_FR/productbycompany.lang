@@ -14,6 +14,8 @@ ParamLabel=Nom du paramètre
 ParamDesc=Une description si besoin
 ParamHelp=Le contenu de l'aide
 PBC_DONT_PRESELECT_CUSTOM_REF=Ne pas présélectionner par défaut la référence personnalisé
+PBC_USE_CUSTOM_REF_CUSTOMER=Utiliser les références personnalisées sur les documents clients
+PBC_USE_CUSTOM_REF_SUPPLIER=Utiliser les références personnalisées sur les documents fournisseurs
 
 # TAB
 TabProductByCompanyFromProduct=Réf./libellé par client

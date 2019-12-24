@@ -67,45 +67,28 @@ class ActionsProductByCompany
 	 */
 	public function doActions($parameters, &$object, &$action, $hookmanager)
 	{
-		/*$error = 0; // Error counter
-		$myvalue = 'test'; // A result value
 
-		print_r($parameters);
-		echo "action: " . $action;
-		print_r($object);
-
-		if (in_array('somecontext', explode(':', $parameters['context'])))
-		{
-		  // do something only for the context 'somecontext'
-		}
-
-		if (! $error)
-		{
-			$this->results = array('myreturn' => $myvalue);
-			$this->resprints = 'A text to show';
-			return 0; // or return 1 to replace standard code
-		}
-		else
-		{
-			$this->errors[] = 'Error message';
-			return -1;
-		}*/
 	}
 
 	public function formEditProductOptions($parameters, &$object, &$action, $hookmanager)
 	{
-		global $langs, $form;
+		global $langs, $form, $conf;
 		$langs->load('productbycompany@productbycompany');
 
 		$TContext = explode(':', $parameters['context']);
 
 		if (
-			in_array('propalcard', $TContext)
-			|| in_array('invoicecard', $TContext)
-			|| in_array('ordercard', $TContext)
-			|| in_array('supplier_proposalcard', $TContext)
-			|| in_array('invoicesuppliercard', $TContext)
-			|| in_array('ordersuppliercard', $TContext)
+			($conf->global->PBC_USE_CUSTOM_REF_CUSTOMER &&
+				(in_array('propalcard', $TContext)
+				|| in_array('invoicecard', $TContext)
+				|| in_array('ordercard', $TContext))
+			)
+			||
+			($conf->global->PBC_USE_CUSTOM_REF_SUPPLIER &&
+				(in_array('supplier_proposalcard', $TContext)
+				|| in_array('invoicesuppliercard', $TContext)
+				|| in_array('ordersuppliercard', $TContext))
+			)
 		)
 		{
 			?>
@@ -159,15 +142,18 @@ class ActionsProductByCompany
 
 	public function formCreateProductOptions($parameters, &$object, &$action, $hookmanager)
 	{
-		global $langs, $form;
+		global $langs, $form, $conf;
 		$langs->load('productbycompany@productbycompany');
 
 		$TContext = explode(':', $parameters['context']);
 
 		if (
-			in_array('propalcard', $TContext)
-			|| in_array('invoicecard', $TContext)
-			|| in_array('ordercard', $TContext)
+			$conf->global->PBC_USE_CUSTOM_REF_CUSTOMER &&
+			(
+				in_array('propalcard', $TContext)
+				|| in_array('invoicecard', $TContext)
+				|| in_array('ordercard', $TContext)
+			)
 		)
 		{
 			?>
@@ -220,15 +206,18 @@ class ActionsProductByCompany
 
 	public function formCreateProductSupplierOptions($parameters, &$object, &$action, $hookmanager)
 	{
-		global $langs, $form;
+		global $langs, $form, $conf;
 		$langs->load('productbycompany@productbycompany');
 
 		$TContext = explode(':', $parameters['context']);
 
 		if (
-			in_array('supplier_proposalcard', $TContext)
-			|| in_array('invoicesuppliercard', $TContext)
-			|| in_array('ordersuppliercard', $TContext)
+			$conf->global->PBC_USE_CUSTOM_REF_SUPPLIER &&
+			(
+				in_array('supplier_proposalcard', $TContext)
+				|| in_array('invoicesuppliercard', $TContext)
+				|| in_array('ordersuppliercard', $TContext)
+			)
 		)
 		{
 			?>
@@ -282,19 +271,28 @@ class ActionsProductByCompany
 
 	public function pdf_writelinedesc($parameters, &$object, &$action, $hookmanager)
 	{
-		global $db;
+		global $db, $conf;
 
 		$TContext = explode(':', $parameters['context']);
 
 		if (
 			in_array('pdfgeneration', $TContext)
 			&& (
-				$object->element == 'propal'
-				|| $object->element == 'commande'
-				|| $object->element == 'facture'
-				|| $object->element == 'supplier_proposal'
-				|| $object->element == 'order_supplier'
-				|| $object->element == 'invoice_supplier'
+				($conf->global->PBC_USE_CUSTOM_REF_CUSTOMER &&
+					(
+						$object->element == 'propal'
+						|| $object->element == 'commande'
+						|| $object->element == 'facture'
+					)
+				)
+				||
+				($conf->global->PBC_USE_CUSTOM_REF_SUPPLIER &&
+					(
+						$object->element == 'supplier_proposal'
+						|| $object->element == 'order_supplier'
+						|| $object->element == 'invoice_supplier'
+					)
+				)
 			)
 		)
 		{
