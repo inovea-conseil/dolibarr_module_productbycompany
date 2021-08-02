@@ -173,7 +173,7 @@ class ProductByCompany extends SeedObject
 		$this->entity = $conf->entity;
     }
 
-    public function fetchByArray($params = array(), $loadChild = true)
+    public function fetchByArray($limit = 0, $TFilter = array(), $loadChild = true, $justFetchIfOnlyOneResult = true)
 	{
 		if (empty($params)) return -1;
 
