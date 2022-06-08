@@ -92,7 +92,7 @@ dol_fiche_head(
     'settings',
     $langs->trans("Module104963Name"),
     -1,
-    "productbycompany@productbycompany"
+    "modulelogo.svg@productbycompany"
 );
 
 // Setup page goes here
