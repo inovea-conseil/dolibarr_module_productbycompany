@@ -57,7 +57,7 @@ dol_fiche_head(
     'about',
     $langs->trans('Module104963Name'),
     0,
-    'productbycompany@productbycompany'
+    'modulelogo.svg@productbycompany'
 );
 
 // About page goes here

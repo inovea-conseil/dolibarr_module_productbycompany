@@ -59,7 +59,7 @@ class modProductByCompany extends DolibarrModules
 		// Module description, used if translation string 'ModuleXXXDesc' not found (where XXX is value of numeric property 'numero' of module)
 		$this->description = "Permet pour chaque clients de modifier spécifiquement la référence et le libéllé d'un produit sur les documents PDF commandes/propositions/factures";
 		// Possible values for version are: 'development', 'experimental', 'dolibarr' or version
-		$this->version = '1.0.0';
+		$this->version = '1.1.1';
 		// Key used in llx_const table to save module status enabled/disabled (where PRODUCTBYCOMPANY is value of property name of module in uppercase)
 		$this->const_name = 'MAIN_MODULE_'.strtoupper($this->name);
 		// Where to store the module in setup page (0=common,1=interface,2=others,3=very specific)
@@ -67,7 +67,7 @@ class modProductByCompany extends DolibarrModules
 		// Name of image file used for this module.
 		// If file is in theme/yourtheme/img directory under name object_pictovalue.png, use this->picto='pictovalue'
 		// If file is in module/img directory under name object_pictovalue.png, use this->picto='pictovalue@module'
-		$this->picto='modulelogo@productbycompany';
+		$this->picto='modulelogo.svg@productbycompany';
 
 		// Defined all module parts (triggers, login, substitutions, menus, css, etc...)
 		// for default path (eg: /productbycompany/core/xxxxx) (0=disable, 1=enable)
