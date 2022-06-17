@@ -3,6 +3,8 @@ All notable changes to this project will be documented in this file.
 
 ## Unreleased
 
+## Version 1.1
+
 - FIX : Remove useless boxe *30/08/2021* - 1.1.1
 - NEW : Change module icon  *08/06/2021* - 1.1.0
 
