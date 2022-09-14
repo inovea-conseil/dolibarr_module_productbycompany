@@ -9,8 +9,13 @@ switch ($get)
 {
 	case 'getCustomRefCreateFields':
 		print getCustomRefCreateFields(GETPOST('id_prod'), GETPOST('fk_soc'), (bool) GETPOST('isPrice'));
+		break;
 	case 'getCustomRefEditFields':
 		print getCustomRefEditFields(GETPOST('id'), GETPOST('element_type'), GETPOST('fk_product'));
+		break;
+	case 'getProductFromCustomerCustomRef':
+		print getProductFromCustomerCustomRef(GETPOST('ref_prod'), GETPOST('fk_soc'));
+		break;
 }
 
 /**
@@ -134,4 +139,42 @@ function getCustomRefEditFields($id, $element_type,$fk_product)
 	}
 
 	return $out;
+}
+
+/**
+ * return
+ * @param string $ref_prod
+ * @param int $fk_soc
+ * @return String JSon
+ */
+function getProductFromCustomerCustomRef($ref_prod, $fk_soc){
+	global $db;
+
+	$jsonResponse = new stdClass();
+	$jsonResponse->result = 1;
+	$jsonResponse->newToken = newToken();
+	$jsonResponse->msg = '';
+	$jsonResponse->data = array();
+
+
+	$pbc = new ProductByCompany($db);
+
+	$sql = 'SELECT cr.fk_product, cr.ref, cr.label, p.ref origin_ref ';
+	$sql.= ' FROM '.MAIN_DB_PREFIX.$pbc->table_element . ' cr ';
+	$sql.= ' JOIN '.MAIN_DB_PREFIX.'product p ON (p.rowid = cr.fk_product )';
+	$sql.= ' WHERE fk_soc = '.intval($fk_soc).' ';
+	$sql.= natural_search('cr.ref', $ref_prod);
+	$sql.= ' OR ' . natural_search('cr.label', $ref_prod, 0, 1);
+	$sql.= ' LIMIT 50 ';
+
+	$TObj = $db->getRows($sql);
+	if ($TObj === false)
+	{
+		$jsonResponse->result = 0;
+		$jsonResponse->msg = $db->lasterror;
+	}else{
+		$jsonResponse->data = $TObj;
+	}
+
+	return json_encode($jsonResponse, JSON_PRETTY_PRINT);
 }

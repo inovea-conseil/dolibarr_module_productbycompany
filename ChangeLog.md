@@ -3,6 +3,8 @@ All notable changes to this project will be documented in this file.
 
 ## Unreleased
 
+- NEW : Add search field for custom ref in customer documents *14/09/2022* - 1.2.0
+
 ## Version 1.1
 
 - FIX : Change editor name : ATM-Consulting -> ATM Consulting *09/08/2022* - 1.1.2

@@ -252,6 +252,28 @@ class ProductByCompany extends SeedObject
 		}
 	}
 
+	/**
+	 * Verify if the productbycompany already exists or not
+	 * @return int > 0 if existing, 0 if not or < 0 if KO
+	 */
+	public function countSocCustomRef()
+	{
+		$sql = "SELECT COUNT(*) nb FROM ".MAIN_DB_PREFIX.$this->table_element;
+		$sql.= " WHERE fk_soc = ".$this->fk_soc;
+
+		$obj = $this->db->getRow($sql);
+		if ($obj === false)
+		{
+			$this->error = $this->db->lasterror;
+			return -1;
+		}
+		else
+		{
+			return (int) $obj->nb;
+		}
+	}
+
+
     /**
      * @param int    $withpicto     Add picto into link
      * @param string $moreparams    Add more parameters in the URL
