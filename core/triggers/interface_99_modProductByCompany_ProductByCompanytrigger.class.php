@@ -250,6 +250,22 @@ class InterfaceProductByCompanytrigger
 		$customRowid	= GETPOST('customRowid');
 		$customDetRowid = GETPOST('customDetRowid');
 
+        if (!empty($object->origin)) {
+            dol_include_once('/productbycompany/class/productbycompany.class.php');
+            $previousElement = new ProductByCompanyDet($db);
+            $previousElement->fk_origin = $object->origin_id;
+            // the ."det" is needed to append to origin as the origin of a line shows only the main object and not the line object with det
+            $previousElement->origin_type = $object->origin."det";
+            $exists = $previousElement->alreadyExists();
+            if ($exists > 0) {
+                $previousElement->fetch($exists);
+            }
+
+            $selected = 'on';
+            $customRef = $previousElement->ref;
+            $customLabel = $previousElement->label;
+        }
+
 		// récupération du fk_soc
 		$parentTable = '';
 		switch ($object->element)
