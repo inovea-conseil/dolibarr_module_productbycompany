@@ -142,7 +142,7 @@ function getCustomRefEditFields($id, $element_type,$fk_product)
 }
 
 /**
- * return
+ * return the json-encoded array representing products matching the specified terms
  * @param string $ref_prod
  * @param int $fk_soc
  * @return String JSon
