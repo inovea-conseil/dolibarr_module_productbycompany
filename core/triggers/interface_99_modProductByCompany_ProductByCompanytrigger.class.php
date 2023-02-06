@@ -256,7 +256,7 @@ class InterfaceProductByCompanytrigger
 			$previousElement = new ProductByCompanyDet($db);
 			$previousElement->fk_origin = $object->origin_id;
 			// the ."det" is needed to append to origin as the origin of a line shows only the main object and not the line object with det
-			if ($object->origin = "order_supplier")
+			if ($object->origin == "order_supplier")
 			{
 				$object->origin = "commande_fournisseur";
 			}
