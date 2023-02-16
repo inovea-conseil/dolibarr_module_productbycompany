@@ -1,0 +1,58 @@
+Module104963Name = Produktreferenz je Geschäftspartner
+Module104963Desc = Modul zum Ändern der Artikelnummer und der Produktbezeichnung einer Dokumentenzeile (Bestellungen/Angebote/Rechnungen)
+
+ATMAbout = This module has been developed by <a href="http://www.atm-consulting.fr" target="_blank">ATM Consulting</a><br>You can find the documentation on our <a href="http://wiki.atm-consulting.fr/index.php/Accueil" target="_blank">wiki</a><br><br>For any question or feedback, contact us on <a href="mailto:support@atm-consulting.fr">support@atm-consulting.fr</a><br><br>For any commercial question, contact us on <a href="mailto:contact@atm-consulting.fr">contact@atm-consulting.fr</a> or at +33 9 77 19 50 70<br><br>Find our other modules on <a href="http://www.dolistore.com/search.php?orderby=position&orderway=desc&search_query=atm&submit_search=Rechercher" target="_blank">Dolistore</a>
+
+ProductByCompanySetup = Konfiguration des Moduls "Produktreferenz je Geschäftspartner"
+ProductByCompanyAbout = Über das Modul "Produktreferenz je Geschäftspartner"
+
+ProductByCompany=Produktreferenz je Geschäftspartner
+AbricotNeedUpdate=Das Modul abricot muss aktualisiert werden
+
+# SETUP
+ParamLabel=Name
+ParamDesc=Beschreibung
+ParamHelp=Hilfe Text
+PBC_DONT_PRESELECT_CUSTOM_REF=Benutzerdefinierte Referenz nicht standardmäßig vorauswählen
+PBC_USE_CUSTOM_REF_CUSTOMER=Benutzerdefinierte Referenzen auf Kundendokumenten verwenden
+PBC_USE_CUSTOM_REF_SUPPLIER=Benutzerdefinierte Referenzen auf Lieferantendokumenten verwenden
+
+# TAB
+TabProductByCompanyFromProduct=Referenz/Bezeichnung pro Kunde
+TabProductByCompanyFromCompany=Referenz/Bezeichnung pro Produkt
+
+# LIST
+ProductByCompanyListFromProduct=Liste Referenz/Bezeichnung nach Geschäftspartner
+ProductByCompanyListFromCompany=Liste Referenz/Bezeichnung nach Produkt
+AddNewProductByCompany=Erstellen Sie eine benutzerdefinierte Referenz
+NoProductByCompany=(leer)
+
+# CARD
+NewProductByCompany=neue Referenz/Bezeichnung erstellen
+ProductByCompanyCard=Karte Referenz/Bezeichnung
+
+ProductByCompanyModify=Bearbeiten
+ProductByCompanyClone=Klonen
+ProductByCompanyValid=Bestätigen
+ProductByCompanyAccept=Akzeptieren
+ProductByCompanyRefuse=Ablehnen
+ProductByCompanyReopen=Erneut öffnen
+ProductByCompanyCancel=Aufgeben
+ProductByCompanyDelete=Löschen
+
+ConfirmValidateProductByCompanyTitle=Bestätigung der Aktivierung
+ConfirmValidateProductByCompanyBody=Möchten Sie diese benutzerdefinierte Referenz %s wirklich aktivieren?
+
+ConfirmDeleteProductByCompanyTitle=Bestätigung der Löschung
+ConfirmDeleteProductByCompanyBody=Möchten Sie diese benutzerdefinierte Referenz %s wirklich löschen?
+
+DateCre=Erstellungsdatum
+RecordAlreadyExists=Für dieses Produkt existiert bereits eine benutzerdefinierte Referenz für diesen Geschäftspartner
+RefIsRequired=Das Feld "Referenz" ist erforderlich
+CustomRef=benutzerdefinierte Referenz
+CreateCustomRef=Erstelle benutzerdefinierte Referenz
+majCustomRef=Bestehende Referenz aktualisieren
+RefIsAMandatoryField=Das Feld Referenz darf nicht leer sein
+Customize=Anpassen
+
+SearchForCustomerCustomRef = Produktreferenz des Kunden

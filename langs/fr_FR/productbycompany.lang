@@ -54,3 +54,5 @@ CreateCustomRef=Créer la référence personnalisée
 majCustomRef=Mettre à jour la référence existante
 RefIsAMandatoryField=Le champs Ref ne peut être vide
 Customize=Personnaliser
+
+SearchForCustomerCustomRef = Réf produit du client
