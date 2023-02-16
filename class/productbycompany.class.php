@@ -365,4 +365,35 @@ class ProductByCompanyDet extends ProductByCompany
 			return (int) $obj->rowid;
 		}
 	}
+
+	/**
+	 * @param string $origin
+	 * @param int $origin_id
+	 * @return int
+	 */
+	public function getOriginData($origin, $origin_id) {
+		switch($origin) {
+			case 'propal' :
+				$origin = 'propaldet';
+				break;
+			case 'commande' :
+				$origin = 'commandedet';
+				break;
+			case 'order_supplier' :
+				$origin = 'commande_fournisseurdet';
+				break;
+			case 'supplier_proposal' :
+				$origin = 'supplier_proposaldet';
+				break;
+		}
+
+		$this->fk_origin = $origin_id;
+		$this->origin_type = $origin;
+
+		$fk_pbc = $this->alreadyExists();
+		if(!empty($fk_pbc)) {
+			return $this->fetch($fk_pbc);
+		}
+		return 0;
+	}
 }
