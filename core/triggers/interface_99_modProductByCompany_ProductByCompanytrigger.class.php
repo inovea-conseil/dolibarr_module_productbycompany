@@ -304,6 +304,8 @@ class InterfaceProductByCompanytrigger
 				return 0;
 		}
 
+
+
 		$sql = "SELECT fk_soc FROM ".MAIN_DB_PREFIX.$parentTable;
 		$sql.= " WHERE rowid = ".$object->{$fk};
 		$resql = $db->query($sql);
@@ -311,6 +313,21 @@ class InterfaceProductByCompanytrigger
 		{
 			$obj = $db->fetch_object($resql);
 			$fk_soc = $obj->fk_soc;
+		}
+
+		dol_include_once('/productbycompany/class/productbycompany.class.php');
+		$parent_pbc 	= new ProductByCompany($db);
+		$pbc_det 		= new ProductByCompanyDet($db);
+
+		//Dans le cas où l'on converti un objet en un autre (ex : propal vers commande)
+		if(empty($selected) && empty($customRef) && empty($customLabel) && !empty($object->origin) && !empty($object->origin_id)) {
+			$res = $pbc_det->getOriginData($object->origin, $object->origin_id);
+			if($res > 0 && !empty($pbc_det->ref)) {
+				$pbc_det->id = 0;
+				$customRef = $pbc_det->ref;
+				$customLabel = $pbc_det->label;
+				$selected = true;
+			}
 		}
 
 		$data = array(
@@ -321,10 +338,6 @@ class InterfaceProductByCompanytrigger
 			,'fk_origin' 	=> $object->id
 			,'origin_type' 	=> $object->element
 		);
-
-		dol_include_once('/productbycompany/class/productbycompany.class.php');
-		$parent_pbc 	= new ProductByCompany($db);
-		$pbc_det 		= new ProductByCompanyDet($db);
 
 		if (empty($selected))
 		{
