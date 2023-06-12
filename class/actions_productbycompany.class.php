@@ -140,8 +140,18 @@ class ActionsProductByCompany
 
 	}
 
+	/**
+	 * Overloading the formCreateProductOptions function : replacing the parent's function with the one below
+	 *
+	 * @param   array()         $parameters     Hook metadatas (context, etc...)
+	 * @param   CommonObject    $object        The object to process (an invoice if you are in invoice module, a propale in propale's module, etc...)
+	 * @param   string          $action        Current action (if set). Generally create or edit or null
+	 * @param   HookManager     $hookmanager    Hook manager propagated to allow calling another hook
+	 * @return  int                             < 0 on error, 0 on success, 1 to replace standard code
+	 */
 	public function formCreateProductOptions($parameters, &$object, &$action, $hookmanager)
 	{
+
 		global $langs, $form, $conf;
 		$langs->load('productbycompany@productbycompany');
 
@@ -156,7 +166,25 @@ class ActionsProductByCompany
 			)
 		)
 		{
+
+			$jsConf = new stdClass();
+			$jsConf->ajaxUrl = dol_buildpath('/productbycompany/script/interface.php',1);
+			$jsConf->socid = $object->socid;
+			$jsConf->langs = array(
+				'Customize' => $langs->trans('Customize')
+			);
+
+			dol_include_once('/productbycompany/class/productbycompany.class.php');
+			$pbc = new ProductByCompany($object->db);
+			$pbc->fk_soc = $object->socid;
+			$jsConf->countedCustomRef = $pbc->countSocCustomRef();
+
+
 			?>
+			<!-- START ProductByCompany -->
+
+			<input type="text" list="customRefSearchFieldOptions" id="customRefSearchField"  placeholder="<?php echo $langs->trans('SearchForCustomerCustomRef'); ?>"  >
+			<datalist id="customRefSearchFieldOptions"></datalist>
 			<a class="button" id="btnCustomRef" style="display: none;">+ <?php echo $langs->trans('Customize'); ?></a>
 			<fieldset id="js_fieldset" style="display: none;">
 				<legend><?php echo $langs->trans('CustomRef'); ?></legend>
@@ -168,21 +196,130 @@ class ActionsProductByCompany
 
             $(document).ready(function(){
 
+				let jsConf = <?php echo json_encode($jsConf) ?>;
+
+				/**
+				 * add array element into select field
+				 *
+				 * @param {jQuery} target The select input jquery element
+				 * @param {array} data an array of object
+				 * @param {string} selected The current selected value
+				 */
+				let updateInputListOptions = function(target, data = false, selected = -1 )
+				{
+					/* Remove all options from the select list */
+					target.empty();
+					target.prop("disabled", true);
+
+					if(Array.isArray(data))
+					{
+						/* Insert the new ones from the array above */
+						for(var i= 0; i < data.length; i++)
+						{
+							let item = data[i];
+							let newOption =  $('<option>', {
+								value: item.ref,
+								text : item.label,
+								"data-fk_product":  item.fk_product,
+								"data-origin_ref":  item.origin_ref,
+								"data-ref":  item.ref
+							});
+
+							if(selected == item.id){
+								newOption.prop('selected');
+							}
+
+							target.append(newOption);
+						}
+
+						if(data.length > 0){
+							target.prop("disabled", false);
+						}
+					}
+				}
+
+				if(jsConf.countedCustomRef > 0){
+					$('#customRefSearchField').show();
+				}
+
+				$('body').on('keyup keypress', '#customRefSearchField', function(e) {
+
+					// on list click search for clicked list option
+					if(!e.key){
+						// it is possible to detect whether an option was typed or selected from the list.
+						//   Both typing and <datalist> clicks trigger the input's keydown listener, but only keyboard events have a key property.
+						//   So if a keydown is triggered having no key property, you know it was a click from the list
+						let dataListClickedOption  = $("#customRefSearchFieldOptions").find("[value='" + e.target.value + "']");
+
+						// applique la selection du produit
+						if(dataListClickedOption != undefined){
+							$("#search_idprod").val(dataListClickedOption.attr('data-origin_ref'));
+							$("#idprod").val(dataListClickedOption.attr('data-fk_product')).trigger("change");
+						}
+
+						return;
+					}
+
+					if($(this).val().length <= 3){
+						return;
+					}
+
+					if (e.key === 'Enter') {
+						e.preventDefault();
+						return false;
+					}
+
+					$.ajax({
+						url : jsConf.ajaxUrl,
+						dataType: 'json',
+						data:{
+							get: 'getProductFromCustomerCustomRef',
+							ref_prod:$(this).val(),
+							fk_soc:jsConf.socid
+						},
+						method:"get",
+						success: function (response) {
+							if(response.result > 0){
+								updateInputListOptions($("#customRefSearchFieldOptions"), response.data);
+
+								// if(response.data.length == 1){
+								// 	// take first result : FBI fausse bonne idée
+								// 	let firstProd = response.data[0];
+								// 	$("#idprod").val(firstProd.fk_product).trigger("change");
+								// }
+							}else{
+								updateInputListOptions($("#customRefSearchFieldOptions"), false);
+							}
+						},
+						error: function (err) {
+							console.error('ProductByCompagnyAjaxCallError');
+						}
+					});
+
+				});
+
+
                 $('#idprod').on('change', function(e){
+
+
+					updateInputListOptions($("#customRefSearchFieldOptions"), false);
+
                     $('#btnCustomRef').show();
                     $('#js_fieldset').hide();
 
                     $.ajax({
-                        url : "<?php echo dol_buildpath('/productbycompany/script/interface.php',1) ?>"
+                        url : jsConf.ajaxUrl
                         ,data:{
                             get: 'getCustomRefCreateFields'
                             ,id_prod:$(this).val()
-							,fk_soc:<?php echo $object->socid; ?>
+							,fk_soc:jsConf.socid
                         }
                         ,method:"get"
                     }).done(function(html){
                         $("#js_customref").html(html);
-                        if (! $('#js_fieldset').is(':visible')) $('#btnCustomRef').html("+ <?php echo $langs->trans('Customize'); ?>")
+                        if (! $('#js_fieldset').is(':visible')){
+							$('#btnCustomRef').html("+ " + jsConf.langs.Customize)
+						}
                     });
                 });
 
@@ -199,6 +336,7 @@ class ActionsProductByCompany
 				})
             });
 			</script>
+			<!-- END ProductByCompany -->
 
 			<?php
 		}
@@ -221,6 +359,7 @@ class ActionsProductByCompany
 		)
 		{
 			?>
+			<!-- START ProductByCompany -->
 			<a class="button" id="btnCustomRef" style="display: none;">+ <?php echo $langs->trans('Customize'); ?></a>
 			<fieldset id="js_fieldset" style="display: none;">
 				<legend>Personnalisation</legend>
@@ -272,7 +411,7 @@ class ActionsProductByCompany
                     })
                 });
 			</script>
-
+			<!-- END ProductByCompany -->
 			<?php
 		}
 	}
