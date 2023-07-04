@@ -60,7 +60,7 @@ class modProductByCompany extends DolibarrModules
 		$this->description = "Permet pour chaque clients de modifier spécifiquement la référence et le libéllé d'un produit sur les documents PDF commandes/propositions/factures";
 		// Possible values for version are: 'development', 'experimental', 'dolibarr' or version
 
-		$this->version = '1.2.0';
+		$this->version = '1.3.0';
 
 		// Key used in llx_const table to save module status enabled/disabled (where PRODUCTBYCOMPANY is value of property name of module in uppercase)
 		$this->const_name = 'MAIN_MODULE_'.strtoupper($this->name);
@@ -220,6 +220,13 @@ class modProductByCompany extends DolibarrModules
 		$this->rights[$r][4] = 'delete';		    // In php code, permission will be checked by test if ($user->rights->permkey->level1->level2)
 		$this->rights[$r][5] = '';				// In php code, permission will be checked by test if ($user->rights->permkey->level1->level2)
 		$r++;
+
+        $this->rights[$r][0] = $this->numero . $r;	// Permission id (must not be already used)
+        $this->rights[$r][1] = 'productbycompany_customize';	// Permission label
+        $this->rights[$r][3] = 0; 					// Permission by default for new user (0/1)
+        $this->rights[$r][4] = 'customize';		    // In php code, permission will be checked by test if ($user->rights->permkey->level1->level2)
+        $this->rights[$r][5] = '';				// In php code, permission will be checked by test if ($user->rights->permkey->level1->level2)
+        $r++;
 
 
 		// Main menu entries

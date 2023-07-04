@@ -11,6 +11,9 @@ All notable changes to this project will be documented in this file.
   Same happens from order to invoice.  
   Same for supplier and customer documents *
 
+## Version 1.3
+
+- NEW : Add a new field in the administration interface where the administrator can enter a list of keywords that should trigger the blocking of the module's functionality.
 
 ## Version 1.1
 

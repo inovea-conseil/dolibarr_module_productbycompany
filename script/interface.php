@@ -26,10 +26,14 @@ switch ($get)
  */
 function getCustomRefCreateFields($id_prod, $fk_soc, $isPrice = false)
 {
-	global $db, $langs, $conf;
+	global $db, $langs, $conf, $user;
 
 	if (empty($id_prod)) return '';
 	$langs->load('productbycompany@productbycompany');
+
+    $rightToCustomize = $user->rights->productbycompany->customize;
+    $labelsExclude = explode(',', getDolGlobalString("PBC_EXCLUDE_LABEL_PRODUCT"));
+    $autoriseCustomize = 1;
 
 	if ($isPrice)
 	{
@@ -58,32 +62,51 @@ function getCustomRefCreateFields($id_prod, $fk_soc, $isPrice = false)
 	}
 
 	$out = '<br>';
-	// créer le selectarray avec rien/custom/la ref existante
-	if ($exists > 0 && empty($conf->global->PBC_DONT_PRESELECT_CUSTOM_REF)) $checked = 'checked';
-	$out.= '<input type="checkbox" name="customRefSelect" id="customRefSelect" style="display: none;"'.$checked.'>';
 
-	if ($exists > 0) $out.= "<input type='hidden' name='customRowid' value='".$customRef->id."'>";
+    if (!empty($labelsExclude) && !$rightToCustomize) {
+        $productLabels = explode(' ', strtoupper(trim($customRef->product->label)));
 
-	$out.= '<p>'.$langs->trans('Ref');
-	$out.= '<input type="text" name="customRef" id="customRef" value="'.($exists <= 0 ? $customRef->product->ref: $customRef->ref ).'"></p>';
-	$out.= '<p>'.$langs->trans('Label');
-	$out.= '<input type="text" name="customLabel" id="customLabel" value="'.($exists <= 0 ? $customRef->product->label: $customRef->label ).'" size="70%"></p>';
+        foreach ($labelsExclude as $label) {
+            $labelExclude = strtoupper(trim($label));
+            foreach ($productLabels as $productLabel) {
+                if (strpos($productLabel, $labelExclude) === 0) {
+                    $autoriseCustomize = 0;
+                }
+            }
+        }
+    }
 
-	if (empty($exists))
-		$cb_label = 'CreateCustomRef';
-	else
-		$cb_label = 'majCustomRef';
+    if ($autoriseCustomize || $rightToCustomize) {
+        // créer le selectarray avec rien/custom/la ref existante
+        if ($exists > 0 && empty($conf->global->PBC_DONT_PRESELECT_CUSTOM_REF)) $checked = 'checked';
+        $out.= '<input type="checkbox" name="customRefSelect" id="customRefSelect" style="display: none;"'.$checked.'>';
 
-	$out.= '<p><label for="majCustomRef" id="customCB"><input type="checkbox" name="majCustomRef" id="majCustomRef" '.(empty($exists) ? 'checked' : '').'> '.$langs->trans($cb_label).'</label></p>';
+        if ($exists > 0) $out.= "<input type='hidden' name='customRowid' value='".$customRef->id."'>";
 
-	if (!empty($exists) && empty($conf->global->PBC_DONT_PRESELECT_CUSTOM_REF))
-	{
-		$out.='<script type="text/javascript">
+        $out.= '<p>'.$langs->trans('Ref');
+        $out.= '<input type="text" name="customRef" id="customRef" value="'.($exists <= 0 ? $customRef->product->ref: $customRef->ref ).'"></p>';
+        $out.= '<p>'.$langs->trans('Label');
+        $out.= '<input type="text" name="customLabel" id="customLabel" value="'.($exists <= 0 ? $customRef->product->label: $customRef->label ).'" size="70%"></p>';
+
+        if (empty($exists))
+            $cb_label = 'CreateCustomRef';
+        else
+            $cb_label = 'majCustomRef';
+
+        $out.= '<p><label for="majCustomRef" id="customCB"><input type="checkbox" name="majCustomRef" id="majCustomRef" '.(empty($exists) ? 'checked' : '').'> '.$langs->trans($cb_label).'</label></p>';
+
+        if (!empty($exists) && empty($conf->global->PBC_DONT_PRESELECT_CUSTOM_REF))
+        {
+            $out.='<script type="text/javascript">
 			$("#js_fieldset").show();
 			$("#btnCustomRef").html("- '.$langs->trans('Customize').'");
 //			$("#customRefSelect").click();
 		</script>';
-	}
+        }
+    } else {
+        $out = -1;
+    }
+
 	return $out;
 }
 

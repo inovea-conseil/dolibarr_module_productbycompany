@@ -304,9 +304,6 @@ class ActionsProductByCompany
 
 					updateInputListOptions($("#customRefSearchFieldOptions"), false);
 
-                    $('#btnCustomRef').show();
-                    $('#js_fieldset').hide();
-
                     $.ajax({
                         url : jsConf.ajaxUrl
                         ,data:{
@@ -316,10 +313,17 @@ class ActionsProductByCompany
                         }
                         ,method:"get"
                     }).done(function(html){
-                        $("#js_customref").html(html);
-                        if (! $('#js_fieldset').is(':visible')){
-							$('#btnCustomRef').html("+ " + jsConf.langs.Customize)
-						}
+                        if (html != "-1") {
+                            $('#btnCustomRef').show();
+                            $('#js_fieldset').hide();
+
+                            $("#js_customref").html(html);
+                            if (! $('#js_fieldset').is(':visible')){
+                                $('#btnCustomRef').html("+ " + jsConf.langs.Customize)
+                            }
+                        } else {
+                            $('#btnCustomRef').hide();
+                        }
                     });
                 });
 
