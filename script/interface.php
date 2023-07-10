@@ -62,17 +62,17 @@ function getCustomRefCreateFields($id_prod, $fk_soc, $isPrice = false)
 	}
 
 	$out = '<br>';
+    
 
     if (!empty($labelsExclude) && !$rightToCustomize) {
-        $productLabels = explode(' ', strtoupper(trim($customRef->product->label)));
-
         foreach ($labelsExclude as $label) {
-            $labelExclude = strtoupper(trim($label));
-            foreach ($productLabels as $productLabel) {
-                if (strpos($productLabel, $labelExclude) === 0) {
-                    $autoriseCustomize = 0;
-                }
-            }
+
+            $chainePrincipale = dol_strtoupper($customRef->product->label);
+            $sousChaineRecherche = trim(strtoupper($label));
+            $regex = "/.*" . preg_quote($sousChaineRecherche, '/') . ".*/";
+
+            if (preg_match($regex, $chainePrincipale))
+                $autoriseCustomize = 0;
         }
     }
 

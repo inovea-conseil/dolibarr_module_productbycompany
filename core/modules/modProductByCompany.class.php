@@ -60,7 +60,7 @@ class modProductByCompany extends DolibarrModules
 		$this->description = "Permet pour chaque clients de modifier spécifiquement la référence et le libéllé d'un produit sur les documents PDF commandes/propositions/factures";
 		// Possible values for version are: 'development', 'experimental', 'dolibarr' or version
 
-		$this->version = '1.3.0';
+		$this->version = '1.3.1';
 
 		// Key used in llx_const table to save module status enabled/disabled (where PRODUCTBYCOMPANY is value of property name of module in uppercase)
 		$this->const_name = 'MAIN_MODULE_'.strtoupper($this->name);
