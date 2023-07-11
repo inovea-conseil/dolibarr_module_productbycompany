@@ -33,7 +33,7 @@ function getCustomRefCreateFields($id_prod, $fk_soc, $isPrice = false)
 
     $rightToCustomize = $user->rights->productbycompany->customize;
     $labelsExclude = explode(',', getDolGlobalString("PBC_EXCLUDE_LABEL_PRODUCT"));
-    $autoriseCustomize = 1;
+    $autoriseCustomize = 0;
 
 	if ($isPrice)
 	{
@@ -72,7 +72,7 @@ function getCustomRefCreateFields($id_prod, $fk_soc, $isPrice = false)
             $regex = "/.*" . preg_quote($sousChaineRecherche, '/') . ".*/";
 
             if (preg_match($regex, $chainePrincipale))
-                $autoriseCustomize = 0;
+                $autoriseCustomize = 1;
         }
     }
 

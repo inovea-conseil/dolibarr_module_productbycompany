@@ -13,7 +13,7 @@ All notable changes to this project will be documented in this file.
 
 ## Version 1.3
 
-- NEW : Add a new field in the administration interface where the administrator can enter a list of keywords that should trigger the blocking of the module's functionality.
+- NEW : Add a new field in the admin interface where the admin can enter a list of keywords which should trigger the authorization of the module functionality.
 
 ## Version 1.1
 
