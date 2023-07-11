@@ -16,8 +16,8 @@ ParamHelp=Le contenu de l'aide
 PBC_DONT_PRESELECT_CUSTOM_REF=Ne pas présélectionner par défaut la référence personnalisé
 PBC_USE_CUSTOM_REF_CUSTOMER=Utiliser les références personnalisées sur les documents clients
 PBC_USE_CUSTOM_REF_SUPPLIER=Utiliser les références personnalisées sur les documents fournisseurs
-PBC_EXCLUDE_LABEL_PRODUCT=Exclure les labels produits/services de la personnalisation
-PBC_EXCLUDE_LABEL_PRODUCT_HELP=La liste des produit/service à exclure de la personnalisation doit être séparé par des virgule (par exemple : produit, service)
+PBC_EXCLUDE_LABEL_PRODUCT=Inclure les labels produits/services au système de personnalisation
+PBC_EXCLUDE_LABEL_PRODUCT_HELP=La liste des produit/service à inclure dans le système de personnalisation, elle doit être séparé par des virgule (par exemple : produit, service)
 
 # RIGHT
 productbycompany_customize=Personnalisation de l'ensemble des produits/services (exclus compris)
